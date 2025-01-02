@@ -80,6 +80,17 @@
                                 <p class="text-muted small"> <strong>Function:</strong>  {{ Auth::user()->current_function }}</p>
                                 <p class="text-muted small"> <strong>Status:</strong>  {{ Auth::user()->user_status }}</p>
                                 <p class="text-muted small"> <strong>Email:</strong>  {{ Auth::user()->email }}</p>
+
+                                <p class="text-muted small fw-bold">
+                                    <a class="nav-link" href="{{ route('notifications.index') }}" >
+                                        Notifications
+                                        @if(auth()->user()->notifications()->unread()->count() > 0)
+                                            <span class="badge bg-danger">
+                                                {{ auth()->user()->notifications()->unread()->count() }}
+                                            </span>
+                                        @endif
+                                    </a>
+                                </p>
                                 <p class="text-muted small">
                                     <strong>Consultation Fee:</strong>
                                     <span class="{{ Auth::user()->consultation_fee_paid === 'paid' ? 'text-success' : 'text-danger' }}">

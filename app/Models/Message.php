@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,6 +11,7 @@ class Message extends Model
     protected $fillable = [
         'sender_id',
         'receiver_id',
+        'receiver_type',  // Ce champ polymorphe déterminera le type de destinataire (User ou Doctor)
         'body',
         'sent_date',
         'status',
@@ -22,11 +22,9 @@ class Message extends Model
         return $this->belongsTo(User::class, 'sender_id');
     }
 
-    /**
-     * Get the destination
-     */
     public function receiver()
     {
         return $this->belongsTo(User::class, 'receiver_id');
     }
+
 }

@@ -110,35 +110,32 @@ class LoginController extends Controller
     // ========================================================================================
 
 
-    public function login(Request $request)
-    {
-
-        if (Auth::check()) {
-
-
-            return back()->withErrors([
-                ('app_home'),
-                'error' => "You're logged in. Please log out before trying to log in with a different account. This would violate user rules."
-            ]);
-        }
-
-        // Connection Data treatment
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string|min:8',
-        ]);
-
-
-        if (Auth::attempt($request->only('email', 'password'), $request->filled('remember'))) {
-
-            return redirect()->intended('/consultation');
-        }
-
-
-        return back()->withErrors([
-            'email' => 'Email or password is incorrect.',
+  public function login(Request $request)
+{
+    // Vérifier si l'utilisateur est déjà connecté
+    if (Auth::check()) {
+        return redirect()->route('consultation')->withErrors([
+            'error' => "You're already logged in. Please log out before trying to log in with a different account.",
         ]);
     }
+
+    // Validation des données de connexion
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required|string|min:8',
+    ]);
+
+    // Tentative d'authentification
+    if (Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+        // Rediriger vers une page intentionnée après connexion réussie
+        return redirect()->intended('/consultation');
+    }
+
+    // En cas d'échec de connexion
+    return back()->withErrors([
+        'email' => 'The provided credentials do not match our records.',
+    ])->withInput(); // Permet de garder l'email dans le champ en cas d'erreur
+}
 
 
     // ========================================================================================

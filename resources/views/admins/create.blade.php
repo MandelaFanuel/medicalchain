@@ -47,6 +47,20 @@
 
         <div class="mb-3 row">
             <div class="col-md-6">
+                <label for="latitude" class="form-label">Latitude</label>
+                <input type="text" name="latitude" id="latitude" class="form-control" placeholder="Ex : 3.20656°S" value="{{ old('latitude') }}">
+                 <small class="text-message fw-bold message" id="error-register-doctor_latitude"></small>
+            </div>
+
+            <div class="col-md-6">
+                <label for="longitude" class="form-label">Longitude</label>
+                <input type="text" name="longitude" id="longitude" class="form-control" placeholder="Ex : 29.30529°E" value="{{ old('longitude') }}">
+                 <small class="text-message fw-bold message" id="error-register-doctor_longitude"></small>
+            </div>
+        </div>
+
+        <div class="mb-3 row">
+            <div class="col-md-6">
                 <label for="diploma" class="form-label">Diploma</label>
                 <input type="file" class="form-control" id="diploma" name="diploma" accept=".pdf,.doc,.docx,.ppt,.pptx" value="{{ old('first_name') }}"  autocomplete="first_name" autofocus required>
                 <small class="text-message fw-bold message" id="error-register-diploma"></small>
@@ -64,6 +78,7 @@
                 <small class="text-message fw-bold message" id="error-register-doctor_description"></small>
             </div>
         </div>
+
 
         <div class="row">
             <div class="col-md-12">

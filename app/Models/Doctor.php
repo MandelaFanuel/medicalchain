@@ -17,6 +17,8 @@ class Doctor extends Model
         'doctor_description',
         'amount',
         'diploma',
+        'latitude',
+        'longitude',
     ];
 
     public function user()
@@ -55,5 +57,18 @@ class Doctor extends Model
     public function scopeWithAppointmentCount($query)
     {
         return $query->withCount('appointments');
+    }
+
+    //================================================================================================
+    //Messages
+
+    public function messagesReceived()
+    {
+        return $this->morphMany(Message::class, 'receiver');
+    }
+
+    public function messagesSent()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
     }
 }

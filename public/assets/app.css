@@ -5,6 +5,24 @@
 @import "./main/user/user.css";
 @import "./images/";
 @import "./lib/boostrap/bootstrap-icons/bootstrap-icons.min.css";
+@import "./lib/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" ;
+
+
+
+@import "lib/bootstrap/css/bootstrap.css";
+@import "https://fonts.bunny.net/css?family=figtree:400,600&display=swap";
+@import "https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Lora:wght@400&display=swap";
+@import "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css";
+
+/* Importation des styles internes */
+@import "./main/user/user.css";
+@import "./images/";
+
+/* Leaflet CSS */
+@import "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+@import "https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css";
+
+
 
 
 

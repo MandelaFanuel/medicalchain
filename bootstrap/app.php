@@ -13,11 +13,21 @@ return Application::configure(basePath: dirname(__DIR__))
     )
 
     ->withMiddleware(function ($middleware) {
+        // Ajout de l'alias pour le middleware admin
         $middleware->alias([
             'admin' => AdminMiddleware::class,
+        ]);
+
+        // Ajout des middlewares pour les routes API
+        $middleware->group('api', [
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,  // Middleware pour Sanctum
+            'throttle:api',  // Limitation du débit pour l'API
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,  // Gestion des paramètres liés aux routes
         ]);
     })
 
     ->withExceptions(function (Exceptions $exceptions) {
-        //
-    })->create();
+        // Configuration des exceptions (si nécessaire)
+    })
+    
+    ->create();

@@ -1,42 +1,28 @@
 <?php
 
+
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\User;
 use Illuminate\Http\Request;
-// use App\Http\Controllers\ConsultationController;
+use Illuminate\Support\Facades\Http;
 
 class ConsultationController extends Controller
 {
-
-
     public function index()
     {
-        // Getting all doctors
-
-
-        // $doctors = User::where('current_function', 'doctor')->get();
         $doctors = Doctor::with('user', 'availabilities')->whereHas('user')->get();
-
         return view('doctors.consultation', compact('doctors'));
     }
 
-
-    // =================================================================================================================
-
-
     public function show()
     {
-        // Fetching Doctors with their related user and availabilities data
         $doctors = Doctor::with(['user', 'availabilities'])->get();
 
-        // Checking each doctor and formatting the availability time
         foreach ($doctors as $doctor) {
-            // Ensure that user data and availabilities are not null
             if ($doctor->user) {
-                // If availability exists and is a collection, format start_time and end_time
                 if ($doctor->availabilities && $doctor->availabilities->isNotEmpty()) {
                     foreach ($doctor->availabilities as $availability) {
                         $availability->start_time = \Carbon\Carbon::parse($availability->start_time)->format('h:i A');
@@ -46,48 +32,71 @@ class ConsultationController extends Controller
             }
         }
 
-        // Return the view with the doctors' data
         return view('doctors.consultation', compact('doctors'));
     }
 
-
-    // ===================================================================================================================================
-
-
-
-
     public function showConsultation()
     {
-        // Getting all Doctors with current_function="doctor
         $doctors = User::where('current_function', 'doctor')->get();
-
         return view('doctors.consultation', compact('doctors'));
     }
 
     public function chat($id)
     {
-        // Managing chats
-
         return view('chat', ['doctorId' => $id]);
     }
 
     public function doctorInfo($id)
     {
-        $doctor = User::findOrFail($id); // Getting doctor ID
+        $doctor = User::findOrFail($id);
         return view('doctor_info', compact('doctor'));
     }
-
-
-    // ================================================================================================================
-
-
-
-    // showing doctor appointment
 
     public function showDoctorAppointments($doctorId)
     {
         $doctor = Doctor::with('user')->find($doctorId);
         $appointments = Appointment::where('doctor_id', $doctorId)->get();
         return view('consultation', compact('doctor', 'appointments'));
+    }
+
+    public function getDoctorAndHospitalLocation($doctorId)
+    {
+        $doctor = Doctor::find($doctorId);
+        $hospital = [
+            'lat' => $doctor->hospital_latitude,
+            'lng' => $doctor->hospital_longitude,
+            'name' => $doctor->hospital_name,
+        ];
+
+        return response()->json(['hospital' => $hospital]);
+    }
+
+    public function showDoctorLocation($doctorId)
+    {
+        $doctor = Doctor::findOrFail($doctorId);
+        $latitudeText = $doctor->latitude;
+        $longitudeText = $doctor->longitude;
+        $latitude = $this->convertToDecimal($latitudeText);
+        $longitude = $this->convertToDecimal($longitudeText);
+
+        return view('doctor.location', compact('doctor', 'latitude', 'longitude'));
+    }
+
+    private function convertToDecimal($coordinate)
+    {
+        preg_match('/([0-9.]+)°([NSWE])/', $coordinate, $matches);
+
+        if (count($matches) == 3) {
+            $decimal = floatval($matches[1]);
+            $direction = $matches[2];
+
+            if ($direction == 'S' || $direction == 'W') {
+                $decimal *= -1;
+            }
+
+            return $decimal;
+        }
+
+        return null;
     }
 }

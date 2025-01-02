@@ -5,20 +5,59 @@ namespace App\Http\Controllers;
 use App\Models\Doctor;
 use App\Models\User;
 use App\Models\Availability;
+use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class DoctorController extends Controller
 {
-    // Displaying all doctors
+    // ================================================================
+    // Routes d'API pour les docteurs
+
+    public function sendMessage(Request $request, $id)
+    {
+        $request->validate([
+            'message' => 'required|string',
+        ]);
+
+        $doctor = Doctor::findOrFail($id);
+        $receiverId = $doctor->user->id;
+
+        $message = new Message();
+        $message->sender_id = auth()->id();
+        $message->receiver_id = $receiverId;
+        $message->body = $request->message;
+        $message->sent_date = now();
+        $message->save();
+
+        return response()->json($message, 201);
+    }
+
+    public function getHospitalLocation($doctorId)
+    {
+        $doctor = Doctor::find($doctorId);
+
+        if ($doctor) {
+            return response()->json([
+                'hospital' => [
+                    'lat' => $doctor->latitude,
+                    'lng' => $doctor->longitude,
+                    'name' => $doctor->hospital,
+                ]
+            ]);
+        }
+
+        return response()->json(['error' => 'Doctor not found'], 404);
+    }
+
     public function index()
     {
         $doctors = Doctor::with('user')->get();
         return view('doctors.consultation', data: compact('doctors'));
     }
 
-    // Searching doctors by their domains
     public function search(Request $request)
     {
         $query = $request->input('query');
@@ -26,7 +65,6 @@ class DoctorController extends Controller
         return view('home.homeIndex', compact('doctors'));
     }
 
-    // Searching doctor and be suggested
     public function searchDoctors(Request $request)
     {
         $query = $request->query('query');
@@ -34,28 +72,25 @@ class DoctorController extends Controller
             $q->where('first_name', 'like', "%$query%")
                 ->orWhere('last_name', 'like', "%$query%");
         })
-            ->orWhere('domain', 'like', "%$query%")
-            ->with('user')
-            ->take(5)
-            ->get();
+        ->orWhere('domain', 'like', "%$query%")
+        ->with('user')
+        ->take(5)
+        ->get();
         return response()->json($doctors);
     }
 
-    // Displaying doctors on consultation page
     public function consultation()
     {
         $doctors = Doctor::with(['user', 'availabilities'])->get();
         return view('doctors.consultation', compact('doctors'));
     }
 
-    // Displaying doctor's details
     public function show($id)
     {
         $doctor = Doctor::with('user')->findOrFail($id);
         return view('doctors.show', compact('doctor'));
     }
 
-    // Displaying of the doctor edit
     public function edit($id)
     {
         $doctor = Doctor::findOrFail($id);
@@ -67,15 +102,11 @@ class DoctorController extends Controller
         return view('doctors.edit', compact('doctor', 'users'));
     }
 
-    // Displaying of availabilities
     public function availability()
     {
         return view('doctors.availability');
     }
 
-    // ===============================================================================================
-
-    // Creating the doctor associated to a user
     public function create()
     {
         $users = User::where('current_function', 'doctor')
@@ -84,10 +115,6 @@ class DoctorController extends Controller
         return view('admins.create', compact('users'));
     }
 
-    // =====================================================================================================
-
-
-    // Registration of a user with function doctor
     public function register(Request $request)
     {
         $request->validate([
@@ -125,7 +152,6 @@ class DoctorController extends Controller
         return redirect()->route('doctors.consultation')->with('success', 'Registration successful.');
     }
 
-    // Registering the doctor
     public function store(Request $request)
     {
         $request->validate([
@@ -135,17 +161,20 @@ class DoctorController extends Controller
             'hospital' => 'required|string',
             'doctor_description' => 'required|string',
             'amount' => 'required|integer',
-            'diploma' => 'required|file|mimes:pdf,doc,docx,ppt',
+            'diploma' => 'required|file|mimes:pdf,doc,docx,ppt,pptx',
+            'latitude' => 'required|string',
+            'longitude' => 'required|string',
         ]);
 
-        $doctor = new Doctor([
-            'user_id' => $request->input('user_id'),
-            'domain' => $request->input('domain'),
-            'experience_years' => $request->input('experience_years'),
-            'hospital' => $request->input('hospital'),
-            'doctor_description' => $request->input('doctor_description'),
-            'amount' => $request->input('amount'),
-        ]);
+        $doctor = new Doctor();
+        $doctor->user_id = $request->user_id;
+        $doctor->domain = $request->domain;
+        $doctor->experience_years = $request->experience_years;
+        $doctor->hospital = $request->hospital;
+        $doctor->doctor_description = $request->doctor_description;
+        $doctor->amount = $request->amount;
+        $doctor->latitude = $request->latitude;
+        $doctor->longitude = $request->longitude;
 
         if ($request->hasFile('diploma')) {
             $path = $request->file('diploma')->store('diplomas', 'public');
@@ -154,10 +183,9 @@ class DoctorController extends Controller
 
         $doctor->save();
 
-        return redirect()->route('doctors.index')->with('success', 'Doctor added successfully.');
+        return redirect()->route('doctors.index')->with('success', 'Doctor added successfully!');
     }
 
-    // Registration of doctor's availabilities
     public function storeAvailability(Request $request, $doctorId)
     {
         $request->validate([
@@ -176,34 +204,6 @@ class DoctorController extends Controller
         return redirect()->back()->with('success', 'Availability added successfully.');
     }
 
-    // Updating the doctor
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'domain' => 'required|string',
-            'experience_years' => 'required|integer',
-            'hospital' => 'required|string',
-            'doctor_description' => 'required|string',
-            'amount' => 'required|integer',
-        ]);
-
-        $doctor = Doctor::findOrFail($id);
-        $doctor->update($request->all());
-
-        return redirect()->route('doctors.index')->with('success', 'Doctor updated successfully.');
-    }
-
-    // Deleting a doctor
-    public function destroy($id)
-    {
-        $doctor = Doctor::findOrFail($id);
-        $doctor->availabilities()->delete();
-        $doctor->delete();
-
-        return redirect()->route('doctors.index')->with('success', 'Doctor deleted successfully.');
-    }
-
-    // Updating availabilities
     public function updateAvailability(Request $request, $id)
     {
         $request->validate([
@@ -218,7 +218,6 @@ class DoctorController extends Controller
         return redirect()->back()->with('success', 'Availability updated successfully.');
     }
 
-    // Deleting availabilities
     public function destroyAvailability($id)
     {
         $availability = Availability::findOrFail($id);
@@ -227,15 +226,12 @@ class DoctorController extends Controller
         return redirect()->back()->with('success', 'Availability deleted successfully.');
     }
 
-    // Displying of doctor consultation
-    public function showConsultation()
+    public function destroy($id)
     {
-        $doctors = Doctor::with('appointments')->get();
-        return view('doctors.consultation', compact('doctors'));
+        $doctor = Doctor::findOrFail($id);
+        $doctor->availabilities()->delete();
+        $doctor->delete();
+
+        return redirect()->route('doctors.index')->with('success', 'Doctor deleted successfully.');
     }
 }
-
-
-
-
-// =====================================================================================================================
