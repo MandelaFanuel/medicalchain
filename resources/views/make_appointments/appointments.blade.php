@@ -24,7 +24,7 @@
                                 <span class="text-muted"> <span class="fw-bold">Adresse :</span>  {{ $doctor->user->user_address }}</span><br>
                                 <span class="text-muted doctor-location fw-bold"> Location : {{ $doctor->hospital }}</span><br>
                                 <span class="text-muted"> <span class="fw-bold">Experience :</span>  {{ $doctor->experience_years }}</span> years<br>
-                                <span style="color:#f313f3; font-size:0.77rem;"> <strong>Amount for consultation is : <br> </strong><strong class="text-center" style="color:#0000ffb4;text-align:center;">20.000FBU</strong></span>
+                                <span style="color:#f313f3; font-size:0.77rem;"> <strong>Amount for consultation is : <br> </strong><strong class="text-center" style="color:#0D6EFD;text-align:center;">20.000FBU</strong></span>
 
 
 {{-- ======================================================================================================================================================================= --}}
@@ -36,9 +36,9 @@
                                     <table class="table table-bordered table-sm" style="font-size: 0.9rem; line-height: 1.2; padding: 0.5rem;">
                                         <thead>
                                             <tr>
-                                                <th style="color: #0000ffb4; font-size: 0.9rem;" class="fw-bold;">Date</th>
-                                                <th style="color: #0000ffb4; font-size: 0.9rem;" class="fw-bold;">Start</th>
-                                                <th style="color: #0000ffb4; font-size: 0.9rem;" class="fw-bold;">End</th>
+                                                <th style="color: #0D6EFD; font-size: 0.9rem;" class="fw-bold;">Date</th>
+                                                <th style="color: #0D6EFD; font-size: 0.9rem;" class="fw-bold;">Start</th>
+                                                <th style="color: #0D6EFD; font-size: 0.9rem;" class="fw-bold;">End</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -67,7 +67,7 @@
                                         <!-- Page 1: Total Appointments -->
                                         <div class="mb-3 page page-{{ $doctor->id }}" id="page1_{{ $doctor->id }}">
                                             <div class="p-3 border rounded">
-                                                <h6 class="fw-bold" style="color: #0000ffb4;">Total Appointments</h6>
+                                                <h6 class="fw-bold" style="color: #0D6EFD;">Total Appointments</h6>
                                                 <p style="color: #f313f3;" id="totalAppointments_{{ $doctor->id }}">{{ $doctor->totalAppointments }}</p>
                                             </div>
                                         </div>
@@ -75,7 +75,7 @@
                                         <!-- Page 2: Treated Appointments -->
                                         <div class="mb-3 page page-{{ $doctor->id }}" id="page2_{{ $doctor->id }}" style="display: none;">
                                             <div class="p-3 border rounded">
-                                                <h6 class="fw-bold" style="color: #0000ffb4;">Treated Appointments</h6>
+                                                <h6 class="fw-bold" style="color: #0D6EFD;">Treated Appointments</h6>
                                                 <p style="color: #f313f3;" id="treatedAppointments_{{ $doctor->id }}">{{ $doctor->treatedAppointments }}</p>
                                             </div>
                                         </div>
@@ -83,7 +83,7 @@
                                         <!-- Page 3: Untreated Appointments -->
                                         <div class=" page page-{{ $doctor->id }}" id="page3_{{ $doctor->id }}" style="display: none;">
                                             <div class="p-3 border rounded">
-                                                <h6 class="fw-bold" style="color: #0000ffb4;">Untreated Appointments</h6>
+                                                <h6 class="fw-bold" style="color: #0D6EFD;">Untreated Appointments</h6>
                                                 <p style="color: #f313f3;" id="untreatedAppointments_{{ $doctor->id }}">{{ $doctor->untreatedAppointments }}</p>
                                             </div>
                                         </div>
@@ -91,7 +91,7 @@
                                         <!-- Page 4: Your Position -->
                                         <div class=" page page-{{ $doctor->id }}" id="page4_{{ $doctor->id }}" style="display: none;">
                                             <div class="p-3 border rounded">
-                                                <h6 class="fw-bold" style="color: #0000ffb4;">Your Position</h6>
+                                                <h6 class="fw-bold" style="color: #0D6EFD;">Your Position</h6>
                                                 <p style="color: #f313f3;" id="position_{{ $doctor->id }}">{{ $doctor->position ?? 'N/A' }}</p>
                                             </div>
                                         </div>
@@ -119,7 +119,7 @@
                             <form id="appointment-form-{{ $doctor->id }}">
                                 @csrf
 
-                                <h4 class="mb-5 fw-bold text-muted" style="border-bottom: solid 0.1px #0e3a5b;" >Appointment Form</h4>
+                                <h4 class="mb-5 fw-bold text-center" style="color:#0D6EFD;font-size:1.5rem;" >Book appointment</h4>
 
                                 <input type="hidden" name="doctor_id" value="{{ $doctor->id }}">
                                 <input type="hidden" name="method" id="method-{{ $doctor->id }}">
@@ -154,7 +154,7 @@
 
                                 <div id="mobile-payment-section-{{ $doctor->id }}" class="payment-section">
                                     <div class="mb-3">
-                                        <label for="mobile_operator" class="form-label fw-bold" style="color:#0e3a5b;">Mobile Payment</label>
+                                        <label for="mobile_operator" class="form-label fw-bold" style="color:#0D6EFD;">Mobile Payment</label>
                                         <select class="form-select" name="mobile_operator">
                                             <option class="fw-bold" value="">Select a service provider</option>
                                             <option class="fw-bold" value="lumitel">Lumicash</option>
@@ -183,7 +183,7 @@
 
                                 <div id="crypto-payment-section-{{ $doctor->id }}" class="payment-section d-none">
                                     <div class="mb-3">
-                                        <label for="crypto_currency" class="form-label fw-bold" style="color:#0e3a5b;">Cryptocurrency Payment</label>
+                                        <label for="crypto_currency" class="form-label fw-bold" style="color:#0D6EFD;">Cryptocurrency Payment</label>
                                         <select class="form-select" name="crypto_currency">
                                             <option class="fw-bold" value="">Select a currency</option>
                                             <option class="fw-bold" value="btc">Bitcoin</option>
