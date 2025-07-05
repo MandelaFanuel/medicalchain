@@ -1,0 +1,11 @@
+/* Variables CSS globales */
+:root {
+    --primary-color: #2563eb;
+    --secondary-color: #1e40af;
+    --success-color: #16a34a;
+    --warning-color: #ca8a04;
+    --danger-color: #dc2626;
+    --light-color: #f8fafc;
+    --dark-color: #0f172a;
+    --gray-color: #64748b;
+}
