@@ -1,0 +1,12 @@
+# Fichiers sensibles
+.env
+.env.py
+db.sqlite3
+*.env*
+
+# Fichiers temporaires
+__pycache__/
+*.pyc
+*.swp
+*.swo
+celerybeat-schedule
