@@ -1,0 +1,26 @@
+/* Styles pour le conteneur principal */
+.container {
+    font-family: 'sans-serif';
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    background-image: linear-gradient(to bottom, #f8f9fa 0%, #e9ecef 100%);
+    padding: 20px;
+  }
+  
+  /* Styles pour les sections enfants */
+  .content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  /* Styles responsives */
+  @media (max-width: 768px) {
+    .container {
+      padding: 10px;
+    }
+    
+    .content {
+      padding: 10px;
+    }
+  }
