@@ -8,3 +8,6 @@ venv/
 .env
 db.sqlite3
 node_modules/mchain/
+backend/
+reqirements/
+mchain/lib/
