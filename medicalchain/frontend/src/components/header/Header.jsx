@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { 
-  Typography, 
+import {
+  Typography,
   Box,
   IconButton,
   Drawer,
-  List, 
+  List,
   ListItem,
   Divider,
   Avatar,
@@ -35,6 +35,8 @@ import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
 import TransgenderIcon from '@mui/icons-material/Transgender';
 
+import logo3 from '../../assets/logo/logo3.png'; // ✅ Logo intégré ici
+
 export default function Header() {
   const { theme, toggleTheme } = useTheme();
   const muiTheme = useMuiTheme();
@@ -42,7 +44,7 @@ export default function Header() {
   const [anchorEl, setAnchorEl] = useState(null);
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
-  
+
   const isTinyScreen = useMediaQuery('(max-width:350px)');
   const isExtraSmallScreen = useMediaQuery('(max-width:400px)');
   const isSmallScreen = useMediaQuery('(max-width:600px)');
@@ -61,18 +63,9 @@ export default function Header() {
     { name: 'Contact Us', path: '/contact', icon: <ContactMailIcon /> }
   ];
 
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
-
-  const handleUserMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleUserMenuClose = () => {
-    setAnchorEl(null);
-  };
-
+  const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
+  const handleUserMenuOpen = (event) => setAnchorEl(event.currentTarget);
+  const handleUserMenuClose = () => setAnchorEl(null);
   const handleLogout = () => {
     handleUserMenuClose();
     logout();
@@ -89,12 +82,8 @@ export default function Header() {
   };
 
   const renderDesktopLink = (item) => (
-    <Tooltip 
-      title={item.name} 
-      arrow 
-      disableHoverListener={isMediumScreen || isLargeScreen}
-    >
-      <Box 
+    <Tooltip title={item.name} arrow disableHoverListener={isMediumScreen || isLargeScreen}>
+      <Box
         component={Link}
         to={item.path}
         sx={{
@@ -111,34 +100,24 @@ export default function Header() {
           transition: 'all 0.2s ease'
         }}
       >
-        <IconButton 
-          sx={{ 
-            color: 'rgba(255,255,255,0.9)', 
+        <IconButton
+          sx={{
+            color: 'rgba(255,255,255,0.9)',
             p: 0,
-            '&:hover': {
-              transform: 'scale(1.1)'
-            }
+            '&:hover': { transform: 'scale(1.1)' }
           }}
         >
           {item.icon}
         </IconButton>
         {!isSmallScreen && (
-          <Typography 
-            sx={{ 
+          <Typography
+            sx={{
               color: 'rgba(255,255,255,0.9)',
-              '&:hover': { 
-                color: 'white',
-              }, 
-              fontSize: { 
-                xs: '0.8rem',
-                sm: '0.85rem',
-                md: '0.9rem', 
-                lg: '0.95rem',
-                xl: '1rem'
-              }, 
-              fontWeight: '500', 
+              fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem', lg: '0.95rem', xl: '1rem' },
+              fontWeight: '500',
               whiteSpace: 'nowrap',
               transition: 'color 0.2s ease',
+              '&:hover': { color: 'white' }
             }}
           >
             {item.name}
@@ -149,12 +128,12 @@ export default function Header() {
   );
 
   const renderMobileLink = (item) => (
-    <ListItem 
+    <ListItem
       component={Link}
       to={item.path}
       onClick={handleDrawerToggle}
-      sx={{ 
-        px: isTinyScreen ? 1 : 2, 
+      sx={{
+        px: isTinyScreen ? 1 : 2,
         py: 1.5,
         display: 'flex',
         alignItems: 'center',
@@ -169,12 +148,7 @@ export default function Header() {
       }}
     >
       {item.icon}
-      <Typography 
-        sx={{ 
-          fontWeight: '500',
-          fontSize: isTinyScreen ? '0.9rem' : '1rem'
-        }}
-      >
+      <Typography sx={{ fontWeight: '500', fontSize: isTinyScreen ? '0.9rem' : '1rem' }}>
         {item.name}
       </Typography>
     </ListItem>
@@ -182,64 +156,52 @@ export default function Header() {
 
   return (
     <>
-      <Box 
+      <Box
         component="header"
-        sx={{ 
+        sx={{
           backgroundColor: muiTheme.palette.primary.main,
           boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
-          py: { 
-            xs: isTinyScreen ? 0.5 : 1, 
-            sm: 1.5, 
-            md: 1.75,
-            lg: 2
-          }, 
-          px: { 
-            xs: isTinyScreen ? 1 : 2, 
-            sm: 3, 
-            md: 3,
-            lg: 4,
-            xl: 6
-          }, 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          position: 'sticky', 
-          top: 0, 
+          py: { xs: isTinyScreen ? 0.5 : 1, sm: 1.5, md: 1.75, lg: 2 },
+          px: { xs: isTinyScreen ? 1 : 2, sm: 3, md: 3, lg: 4, xl: 6 },
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          position: 'sticky',
+          top: 0,
           zIndex: 1100,
           width: '100%',
           boxSizing: 'border-box'
         }}
       >
-        {/* Logo */}
-        <Typography 
-          component={Link} 
+        {/* ✅ Logo cliquable avec l'image logo3.png */}
+        <Box
+          component={Link}
           to="/"
-          variant="h5" 
-          sx={{ 
-            fontWeight: 'bold', 
-            color: 'white',
-            fontSize: { 
-              xs: isTinyScreen ? '0.9rem' : '1.1rem', 
-              sm: '1.25rem', 
-              md: '1.3rem',
-              lg: '1.4rem',
-              xl: '1.5rem'
-            },
-            textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
             textDecoration: 'none',
-            whiteSpace: 'nowrap',
-            mr: { xs: 1, sm: 2 },
-            transition: 'all 0.3s ease',
-            '&:hover': {
-              opacity: 0.9,
-              transform: 'scale(1.02)'
-            }
+            mr: { xs: 1, sm: 2 }
           }}
-        > 
-          MedicalChain
-        </Typography>
-        
-        {/* Navigation */}
+        >
+          <Box
+            component="img"
+            src={logo3}
+            alt="MedicalChain Logo"
+            sx={{
+              height: { xs: 28, sm: 35, md: 40, lg: 45 },
+              width: 'auto',
+              maxWidth: '160px',
+              transition: 'all 0.3s ease',
+              filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))',
+              '&:hover': {
+                transform: 'scale(1.04)'
+              }
+            }}
+          />
+        </Box>
+
+        {/* Navigation + User/Menu/etc. */}
         <Box sx={{ 
           display: 'flex', 
           alignItems: 'center',
