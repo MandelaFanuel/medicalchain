@@ -1,7 +1,7 @@
 // ---------- 1. theme.js ----------
 import { createTheme } from '@mui/material/styles';
 import { appColors } from '@/theme/colors';
-import '@/assets/fonts/poppins.css';
+import '../assets/fonts/poppins.css';
 
 const baseTypography = {
   fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
