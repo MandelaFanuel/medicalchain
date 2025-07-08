@@ -1,6 +1,6 @@
 import os
 import dj_database_url
-from .base import BASE_DIR
+from .base import *
 
 # Sécurité
 DEBUG = False
@@ -41,3 +41,6 @@ if REDIS_URL:
     }
     CELERY_BROKER_URL = REDIS_URL
     CELERY_RESULT_BACKEND = REDIS_URL
+
+# Configuration pour WhiteNoise
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"

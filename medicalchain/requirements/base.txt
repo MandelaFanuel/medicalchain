@@ -52,3 +52,7 @@ celery==5.3.6
 django-celery-beat==2.6.0
 django-celery-results==2.5.1
 pytz==2023.3
+
+
+dj-database-url==2.1.0
+whitenoise==6.6.0

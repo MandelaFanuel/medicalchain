@@ -1,7 +1,4 @@
-# Import explicite des variables utiles depuis base.py
-from .base import (
-    BASE_DIR,
-)
+from .base import *
 
 # Paramètres spécifiques au développement
 
@@ -20,6 +17,9 @@ DATABASES = {
 CELERY_BROKER_URL = "redis://redis:6379/0"
 CELERY_RESULT_BACKEND = "redis://redis:6379/0"
 
-# Le reste des paramètres (middleware, apps, etc.) reste importé via base.py
+# Configuration des fichiers statiques en développement
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Tu peux rajouter d'autres réglages dev ici si besoin
+# Configuration pour WhiteNoise
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
