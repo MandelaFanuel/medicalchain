@@ -57,7 +57,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # Ajouté pour les fichiers statiques
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -143,15 +142,11 @@ CORS_ALLOW_CREDENTIALS = True
 # Fichiers statiques & média
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = BASE_DIR / "staticfiles"  # Ajouté pour la collecte des fichiers statiques
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_PROFILE_IMAGE = os.path.join(
     MEDIA_ROOT, "profile_images", "default_profile.png"
 )
-
-# Configuration pour WhiteNoise
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Validation mots de passe
 AUTH_PASSWORD_VALIDATORS = [
