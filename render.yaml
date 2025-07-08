@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: medicalchain-prod
+    runtime: python
+    plan: free
+    branch: mchain
+    buildCommand: |
+      pip install -r medicalchain/requirements/base.txt -r medicalchain/requirements/prod.txt
+      python medicalchain/manage.py collectstatic --noinput
+    startCommand: gunicorn medicalchain.wsgi:application --bind 0.0.0.0:$PORT --workers 2
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: medicalchain.settings.prod
+      - key: PYTHON_VERSION
+        value: 3.11.6
+

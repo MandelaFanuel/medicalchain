@@ -1,55 +1,43 @@
 import os
-
-# from pathlib import Path
-
-# Import explicite depuis base.py (variables communes)
+import dj_database_url
 from .base import BASE_DIR
 
-# Debug désactivé en prod
+# Sécurité
 DEBUG = False
+SECRET_KEY = os.getenv("SECRET_KEY")  # Doit être défini dans Render !
+ALLOWED_HOSTS = ["medicalchain-prod.onrender.com", "localhost"]
 
-ALLOWED_HOSTS = ["*"]  # à ajuster en prod réelle (ex: ["mydomain.com"])
-
-# Sécurité HTTPS / Cookies sécurisés
+# HTTPS
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
-# Base de données pour prod (SQLite par défaut, à modifier si besoin)
+# Base de données (PostgreSQL obligatoire sur Render)
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
-    }
+    "default": dj_database_url.config(
+        default=os.getenv("DATABASE_URL"),
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
 
-# Fichiers statiques et média (prod)
+# Static files
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
+# Media files (configuration S3 recommandée)
 MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")  # Temporaire, à remplacer par S3
 
-# Redis & cache (utilise variables d'environnement ou valeurs par défaut)
-REDIS_HOST = os.getenv("REDIS_HOST", "redis")
-REDIS_PORT = os.getenv("REDIS_PORT", "6379")
-
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/0",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
+# Redis (si utilisé)
+REDIS_URL = os.getenv("REDIS_URL")
+if REDIS_URL:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": REDIS_URL,
+            "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
+        }
     }
-}
-
-# Celery en prod
-CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
-CELERY_RESULT_BACKEND = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
-
-# Static files dirs - pas nécessaire en prod car STATIC_ROOT est utilisé pour collectstatic
-
-# Middleware et apps sont hérités via base.py (tu peux étendre si besoin)
-
-# Tu peux ajouter d'autres configurations spécifiques à la prod ici
+    CELERY_BROKER_URL = REDIS_URL
+    CELERY_RESULT_BACKEND = REDIS_URL
