@@ -17,7 +17,10 @@ import {
   Payment,
   Notifications,
   Videocam,
-  History
+  History,
+  LocalPharmacy,
+  Receipt,
+  DeliveryDining
 } from '@mui/icons-material';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
@@ -81,51 +84,69 @@ const ServicesSection = () => {
   const services = [
     {
       icon: <CalendarToday fontSize={isSmall ? "medium" : "large"} color="primary" />,
-      title: "Prise de rendez-vous simplifiée",
-      description: "Trouvez et réservez en quelques clics un rendez-vous avec le médecin de votre choix, selon vos disponibilités et vos besoins spécifiques.",
-      features: ["Recherche par spécialité", "Disponibilités en temps réel", "Confirmation immédiate"]
+      title: "Simplified appointment booking",
+      description: "Find and book an appointment with the doctor of your choice in just a few clicks, according to your availability and specific needs.",
+      features: ["Search by specialty", "Real-time availability", "Immediate confirmation"]
     },
     {
       icon: <Schedule fontSize={isSmall ? "medium" : "large"} color="primary" />,
-      title: "Gestion optimisée du temps",
-      description: "Optimisez votre temps et celui des médecins grâce à notre système intelligent de planification et de rappels automatiques.",
-      features: ["Rappels SMS/Email", "Gestion des retards", "Temps de consultation adapté"]
+      title: "Optimized time management",
+      description: "Optimize your time and that of doctors with our intelligent scheduling system and automatic reminders.",
+      features: ["SMS/Email reminders", "Delay management", "Adapted consultation time"]
     },
     {
       icon: <Cancel fontSize={isSmall ? "medium" : "large"} color="primary" />,
-      title: "Annulation et modification facile",
-      description: "Modifiez ou annulez vos rendez-vous en toute simplicité, conformément aux politiques des praticiens.",
-      features: ["Annulation en ligne", "Modification instantanée", "Historique des changements"]
+      title: "Easy cancellation and modification",
+      description: "Modify or cancel your appointments with ease, in accordance with practitioners' policies.",
+      features: ["Online cancellation", "Instant modification", "Change history"]
     },
     {
       icon: <Security fontSize={isSmall ? "medium" : "large"} color="primary" />,
-      title: "Sécurité et confidentialité",
-      description: "Vos données médicales et personnelles sont protégées par des protocoles de sécurité avancés et un chiffrement de bout en bout.",
-      features: ["Authentification forte", "Données chiffrées", "Accès sécurisé"]
+      title: "Security and confidentiality",
+      description: "Your medical and personal data is protected by advanced security protocols and end-to-end encryption.",
+      features: ["Strong authentication", "Encrypted data", "Secure access"]
     },
     {
       icon: <Payment fontSize={isSmall ? "medium" : "large"} color="primary" />,
-      title: "Paiements sécurisés",
-      description: "Réglez vos consultations en toute sécurité via notre plateforme de paiement intégrée avec plusieurs options disponibles.",
-      features: ["Carte bancaire", "Mobile Money", "Paiement crypté"]
+      title: "Secure payments",
+      description: "Pay for your consultations securely through our integrated payment platform with multiple options available.",
+      features: ["Credit card", "Mobile Money", "Encrypted payment"]
     },
     {
       icon: <Notifications fontSize={isSmall ? "medium" : "large"} color="primary" />,
-      title: "Alertes et notifications",
-      description: "Recevez des notifications personnalisées pour vos rendez-vous à venir, rappels de préparation et suivis post-consultation.",
-      features: ["Alertes personnalisables", "Notifications push", "Suivi médical"]
+      title: "Alerts and notifications",
+      description: "Receive personalized notifications for upcoming appointments, preparation reminders and post-consultation follow-ups.",
+      features: ["Customizable alerts", "Push notifications", "Medical follow-up"]
     },
     {
       icon: <Videocam fontSize={isSmall ? "medium" : "large"} color="primary" />,
-      title: "Consultations à distance",
-      description: "Accédez à des consultations virtuelles sécurisées avec des professionnels de santé, sans vous déplacer.",
-      features: ["Vidéoconférence sécurisée", "Prescriptions électroniques", "Dossier médical partagé"]
+      title: "Remote consultations",
+      description: "Access secure virtual consultations with healthcare professionals without having to travel.",
+      features: ["Secure videoconferencing", "Electronic prescriptions", "Shared medical record"]
     },
     {
       icon: <History fontSize={isSmall ? "medium" : "large"} color="primary" />,
-      title: "Historique complet",
-      description: "Consultez l'historique de tous vos rendez-vous, prescriptions et documents médicaux en un seul endroit sécurisé.",
-      features: ["Archivage automatique", "Accès chronologique", "Export PDF"]
+      title: "Complete history",
+      description: "View the history of all your appointments, prescriptions and medical documents in one secure place.",
+      features: ["Automatic archiving", "Chronological access", "PDF export"]
+    },
+    {
+      icon: <LocalPharmacy fontSize={isSmall ? "medium" : "large"} color="primary" />,
+      title: "Intelligent Pharmaceutical Network",
+      description: "Integrated prescription management system allowing registered pharmacies to receive prescriptions issued by doctors in real time.",
+      features: ["Real-time notifications", "Stock management", "Secure interaction"]
+    },
+    {
+      icon: <Receipt fontSize={isSmall ? "medium" : "large"} color="primary" />,
+      title: "Prescription Processing",
+      description: "Pharmacies can immediately indicate the availability of prescribed medications, facilitating patients' access to treatments.",
+      features: ["Availability confirmation", "Online reservation", "Doctor-pharmacist coordination"]
+    },
+    {
+      icon: <DeliveryDining fontSize={isSmall ? "medium" : "large"} color="primary" />,
+      title: "Delivery Service",
+      description: "For partner pharmacies, home delivery option for prescribed medications, according to each establishment's terms.",
+      features: ["Real-time tracking", "Express delivery", "Secure payment"]
     }
   ];
 
@@ -172,7 +193,7 @@ const ServicesSection = () => {
             lineHeight: 1.2
           }}
         >
-          Nos Services Complets
+          Our Comprehensive Services
         </Typography>
         <Typography 
           component={motion.div}
@@ -189,7 +210,7 @@ const ServicesSection = () => {
             lineHeight: 1.6
           }}
         >
-          Découvrez comment MedicalChain révolutionne l'expérience médicale pour les patients et les professionnels de santé
+          Discover how MedicalChain is revolutionizing the medical experience for patients, healthcare professionals and partner pharmacies
         </Typography>
       </Box>
       

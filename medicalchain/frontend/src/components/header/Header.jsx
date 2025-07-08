@@ -1,70 +1,50 @@
 import React, { useState } from 'react';
 import {
-  Typography,
-  Box,
-  IconButton,
-  Drawer,
-  List,
-  ListItem,
-  Divider,
-  Avatar,
-  Menu,
-  MenuItem,
-  useTheme as useMuiTheme,
-  useMediaQuery,
-  Tooltip
+  Typography, Box, IconButton, Drawer, List, ListItem, Avatar, Menu, MenuItem,
+  useTheme as useMuiTheme, useMediaQuery, Tooltip, Divider, Select, 
+  FormControl, ListItemIcon
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
+import LogoutIcon from '@mui/icons-material/Logout';
+import NightsStayIcon from '@mui/icons-material/NightsStay';
+import WbSunnyIcon from '@mui/icons-material/WbSunny';
+import LanguageIcon from '@mui/icons-material/Language';
+
 import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import MedicationIcon from '@mui/icons-material/Medication';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import InfoIcon from '@mui/icons-material/Info';
 import ContactMailIcon from '@mui/icons-material/ContactMail';
-import LogoutIcon from '@mui/icons-material/Logout';
-import NightsStayIcon from '@mui/icons-material/NightsStay';
-import WbSunnyIcon from '@mui/icons-material/WbSunny';
-import PersonIcon from '@mui/icons-material/Person';
-import HomeIcon from '@mui/icons-material/Home';
-import WorkIcon from '@mui/icons-material/Work';
-import MaleIcon from '@mui/icons-material/Male';
-import FemaleIcon from '@mui/icons-material/Female';
-import TransgenderIcon from '@mui/icons-material/Transgender';
 
-import logo3 from '../../assets/logo/logo3.png'; // ✅ Logo intégré ici
+import logo from '../../assets/logo/logo14.png';
+
+// Couleurs pour le dégradé (de droite vers gauche)
+const headerColors = {
+  gradientStart: '#5ab0e0', // Bleu clair (droite)
+  gradientEnd: '#031733'   // Bleu foncé (gauche)
+};
 
 export default function Header() {
   const { theme, toggleTheme } = useTheme();
   const muiTheme = useMuiTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [showFeatureMessage, setShowFeatureMessage] = useState(false);
+  const [clickedLinkPosition, setClickedLinkPosition] = useState({ top: 0, left: 0 });
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const [language, setLanguage] = useState('');
 
-  const isTinyScreen = useMediaQuery('(max-width:350px)');
-  const isExtraSmallScreen = useMediaQuery('(max-width:400px)');
-  const isSmallScreen = useMediaQuery('(max-width:600px)');
-  const isMediumScreen = useMediaQuery('(min-width:601px) and (max-width:899px)');
-  const isLargeScreen = useMediaQuery('(min-width:900px) and (max-width:1075px)');
-  const isExtraLargeScreen = useMediaQuery('(min-width:1076px)');
-  const isPortrait = useMediaQuery('(orientation: portrait)');
-
-  const commonLinks = [
-    { name: 'Services', path: '/services', icon: <MedicalServicesIcon /> },
-    { name: 'Hospitals', path: '/hospitals', icon: <LocalHospitalIcon /> },
-    { name: 'Add Pharmacy', path: '/Add Pharmacy', icon: <MedicationIcon /> },
-    { name: 'Clinicals', path: '/clinicals', icon: <MedicationIcon /> },
-    { name: 'Resources', path: '/resources', icon: <LibraryBooksIcon /> },
-    { name: 'About Us', path: '/about', icon: <InfoIcon /> },
-    { name: 'Contact Us', path: '/contact', icon: <ContactMailIcon /> }
-  ];
+  const isSmallScreen = useMediaQuery(muiTheme.breakpoints.down('md'));
+  const isMediumScreen = useMediaQuery(muiTheme.breakpoints.between('sm', 'md'));
 
   const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
-  const handleUserMenuOpen = (event) => setAnchorEl(event.currentTarget);
+  const handleUserMenuOpen = (e) => setAnchorEl(e.currentTarget);
   const handleUserMenuClose = () => setAnchorEl(null);
   const handleLogout = () => {
     handleUserMenuClose();
@@ -73,530 +53,555 @@ export default function Header() {
     setMobileOpen(false);
   };
 
-  const getGenderIcon = (gender) => {
-    switch (gender) {
-      case 'M': return <MaleIcon fontSize="small" />;
-      case 'F': return <FemaleIcon fontSize="small" />;
-      default: return <TransgenderIcon fontSize="small" />;
-    }
+  const handleLinkClick = (e) => {
+    e.preventDefault();
+    const rect = e.currentTarget.getBoundingClientRect();
+    setClickedLinkPosition({
+      top: rect.bottom,
+      left: rect.left + rect.width / 2
+    });
+    setShowFeatureMessage(true);
+    setMobileOpen(false);
+    setTimeout(() => {
+      setShowFeatureMessage(false);
+    }, 3000);
   };
 
-  const renderDesktopLink = (item) => (
-    <Tooltip title={item.name} arrow disableHoverListener={isMediumScreen || isLargeScreen}>
-      <Box
-        component={Link}
-        to={item.path}
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1,
-          textDecoration: 'none',
-          p: 1,
-          borderRadius: 1,
-          '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            transform: 'translateY(-1px)'
-          },
-          transition: 'all 0.2s ease'
-        }}
-      >
-        <IconButton
-          sx={{
-            color: 'rgba(255,255,255,0.9)',
-            p: 0,
-            '&:hover': { transform: 'scale(1.1)' }
-          }}
-        >
-          {item.icon}
-        </IconButton>
-        {!isSmallScreen && (
-          <Typography
-            sx={{
-              color: 'rgba(255,255,255,0.9)',
-              fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem', lg: '0.95rem', xl: '1rem' },
-              fontWeight: '500',
-              whiteSpace: 'nowrap',
-              transition: 'color 0.2s ease',
-              '&:hover': { color: 'white' }
-            }}
-          >
-            {item.name}
-          </Typography>
-        )}
-      </Box>
-    </Tooltip>
-  );
+  const handleCloseFeatureMessage = () => {
+    setShowFeatureMessage(false);
+  };
 
-  const renderMobileLink = (item) => (
-    <ListItem
-      component={Link}
-      to={item.path}
-      onClick={handleDrawerToggle}
+  const handleLanguageChange = (event) => {
+    setLanguage(event.target.value);
+  };
+
+  const languages = [
+    { 
+      code: 'BID', 
+      name: 'Kirundi', 
+      country: 'Burundi', 
+      flag: 'https://flagcdn.com/w40/bi.png' 
+    },
+    { 
+      code: 'eng', 
+      name: 'English', 
+      country: 'UK', 
+      flag: 'https://flagcdn.com/w40/gb.png' 
+    },
+    { 
+      code: 'swah', 
+      name: 'Swahili', 
+      country: 'Tanzania', 
+      flag: 'https://flagcdn.com/w40/tz.png' 
+    },
+    { 
+      code: 'fran', 
+      name: 'French', 
+      country: 'France', 
+      flag: 'https://flagcdn.com/w40/fr.png' 
+    },
+    { 
+      code: 'ling', 
+      name: 'Lingala', 
+      country: 'DR Congo', 
+      flag: 'https://flagcdn.com/w40/cd.png' 
+    }
+  ];
+
+  const commonLinks = [
+    { name: 'Services', path: '/services', icon: <MedicalServicesIcon /> },
+    { name: 'Hospitals', path: '/hospitals', icon: <LocalHospitalIcon /> },
+    { name: 'Add Pharmacy', path: '/add-pharmacy', icon: <MedicationIcon /> },
+    { name: 'Clinicals', path: '/clinicals', icon: <MedicationIcon /> },
+    { name: 'Resources', path: '/resources', icon: <LibraryBooksIcon /> },
+    { name: 'About Us', path: '/about', icon: <InfoIcon /> },
+    { name: 'Contact Us', path: '/contact', icon: <ContactMailIcon /> }
+  ];
+
+  const renderDesktopLink = (item) => (
+    <Box 
+      key={item.path} 
       sx={{
-        px: isTinyScreen ? 1 : 2,
-        py: 1.5,
+        position: 'relative',
         display: 'flex',
-        alignItems: 'center',
-        gap: isTinyScreen ? 1 : 2,
-        textDecoration: 'none',
-        color: 'rgba(255,255,255,0.9)',
-        '&:hover': {
-          backgroundColor: 'rgba(255, 255, 255, 0.05)',
-          color: 'white'
-        },
-        transition: 'all 0.2s ease'
+        flexDirection: 'column',
+        alignItems: 'center'
       }}
     >
-      {item.icon}
-      <Typography sx={{ fontWeight: '500', fontSize: isTinyScreen ? '0.9rem' : '1rem' }}>
-        {item.name}
-      </Typography>
-    </ListItem>
-  );
-
-  return (
-    <>
-      <Box
-        component="header"
-        sx={{
-          backgroundColor: muiTheme.palette.primary.main,
-          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
-          py: { xs: isTinyScreen ? 0.5 : 1, sm: 1.5, md: 1.75, lg: 2 },
-          px: { xs: isTinyScreen ? 1 : 2, sm: 3, md: 3, lg: 4, xl: 6 },
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          position: 'sticky',
-          top: 0,
-          zIndex: 1100,
-          width: '100%',
-          boxSizing: 'border-box'
-        }}
-      >
-        {/* ✅ Logo cliquable avec l'image logo3.png */}
+      <Tooltip title={item.name} arrow disableHoverListener={isMediumScreen}>
         <Box
-          component={Link}
-          to="/"
+          component="a"
+          href={item.path}
+          onClick={handleLinkClick}
           sx={{
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'center',
+            gap: 1,
             textDecoration: 'none',
-            mr: { xs: 1, sm: 2 }
+            p: '8px 12px',
+            borderRadius: 1,
+            minWidth: '100px',
+            '&:hover': {
+              backgroundColor: 'rgba(255,255,255,0.1)',
+              transform: 'translateY(-1px)'
+            },
+            transition: 'all 0.2s ease',
+            cursor: 'pointer'
           }}
         >
-          <Box
-            component="img"
-            src={logo3}
-            alt="MedicalChain Logo"
-            sx={{
-              height: { xs: 28, sm: 35, md: 40, lg: 45 },
-              width: 'auto',
-              maxWidth: '160px',
-              transition: 'all 0.3s ease',
-              filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))',
-              '&:hover': {
-                transform: 'scale(1.04)'
-              }
-            }}
-          />
-        </Box>
-
-        {/* Navigation + User/Menu/etc. */}
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center',
-          gap: { 
-            xs: isTinyScreen ? 0.5 : 1, 
-            sm: 1.5,
-            md: 1.5,
-            lg: 2
-          },
-          ml: 'auto'
-        }}>
-          {/* Desktop Navigation */}
-          <Box 
-            component="nav"
+          <IconButton
             sx={{ 
-              display: { xs: 'none', md: 'flex' }, 
-              gap: { 
-                md: 0.5,
-                lg: 1,
-                xl: 1.5
-              }, 
-              alignItems: 'center',
-              flexShrink: 0
+              color: 'rgba(255,255,255,0.9)', 
+              p: 0, 
+              '&:hover': { transform: 'scale(1.1)' } 
             }}
           >
-            {commonLinks.map((item) => (
-              <React.Fragment key={item.name}>
-                {renderDesktopLink(item)}
-              </React.Fragment>
-            ))}
-          </Box>
-
-          {/* Theme Toggle */}
-          <Tooltip title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}>
-            <IconButton 
-              onClick={toggleTheme} 
-              color="inherit"
+            {item.icon}
+          </IconButton>
+          {!isSmallScreen && (
+            <Typography 
               sx={{ 
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  transform: 'rotate(15deg)'
-                },
-                color: 'white',
-                padding: { xs: '4px', sm: '6px', md: '6px' },
-                transition: 'all 0.3s ease'
+                color: 'rgba(255,255,255,0.9)', 
+                fontSize: '0.95rem', 
+                fontWeight: '500',
+                whiteSpace: 'nowrap'
               }}
-              aria-label="Toggle theme"
             >
-              {theme === 'light' ? (
-                <NightsStayIcon sx={{ 
-                  fontSize: { 
-                    xs: '1rem', 
-                    sm: '1.1rem', 
-                    md: '1.1rem',
-                    lg: '1.2rem'
-                  } 
-                }} />
-              ) : (
-                <WbSunnyIcon sx={{ 
-                  fontSize: { 
-                    xs: '1rem', 
-                    sm: '1.1rem', 
-                    md: '1.1rem',
-                    lg: '1.2rem'
-                  } 
-                }} />
-              )}
-            </IconButton>
-          </Tooltip>
-
-          {/* User Menu - Desktop */}
-          {isAuthenticated && !isSmallScreen && (
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center',
-              flexShrink: 0
-            }}>
-              <Tooltip title="Account settings">
-                <Box 
-                  sx={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: 1,
-                    cursor: 'pointer',
-                    p: 0.75,
-                    borderRadius: 1,
-                    '&:hover': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)'
-                    },
-                    transition: 'all 0.2s ease'
-                  }}
-                  onClick={handleUserMenuOpen}
-                >
-                  <Avatar 
-                    alt={user?.username || 'User'} 
-                    src={user?.profile_image} 
-                    sx={{ 
-                      width: { 
-                        md: 30,
-                        lg: 34,
-                        xl: 38
-                      }, 
-                      height: { 
-                        md: 30,
-                        lg: 34,
-                        xl: 38
-                      },
-                      transition: 'all 0.3s ease'
-                    }} 
-                  />
-                  <Typography 
-                    variant="body1" 
-                    sx={{ 
-                      color: 'white',
-                      fontWeight: '500',
-                      fontSize: {
-                        md: '0.8rem',
-                        lg: '0.85rem',
-                        xl: '0.9rem'
-                      },
-                      maxWidth: { md: '100px', lg: '120px', xl: '150px' },
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    {user?.username || user?.email}
-                  </Typography>
-                </Box>
-              </Tooltip>
-              
-              <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleUserMenuClose}
-                sx={{ 
-                  '& .MuiPaper-root': {
-                    backgroundColor: muiTheme.palette.primary.main,
-                    color: 'white',
-                    marginTop: '8px',
-                    minWidth: '250px',
-                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.25)',
-                    border: '1px solid rgba(255,255,255,0.1)'
-                  },
-                  '& .MuiMenuItem-root': {
-                    '&:hover': {
-                      backgroundColor: 'rgba(255,255,255,0.08)'
-                    }
-                  }
-                }}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'right',
-                }}
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-              >
-                <Box sx={{ p: 2 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                    <Avatar 
-                      alt={user?.username || 'User'} 
-                      src={user?.profile_image} 
-                      sx={{ 
-                        width: 56, 
-                        height: 56,
-                        border: '2px solid white'
-                      }} 
-                    />
-                    <Box>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                        {user?.username}
-                      </Typography>
-                      <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                        {user?.email}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Divider sx={{ my: 1, backgroundColor: 'rgba(255,255,255,0.1)' }} />
-                  
-                  {/* User Details Section */}
-                  <Box sx={{ px: 2, py: 1 }}>
-                    <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                      <PersonIcon fontSize="small" /> Full Name:   {user?.first_name} {user?.last_name}
-                    </Typography>
-                    <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                      <HomeIcon fontSize="small" /> Address:   {user?.current_address}
-                    </Typography>
-                    <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                      <WorkIcon fontSize="small" /> Function:   {user?.current_function}
-                    </Typography>
-                    <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      {getGenderIcon(user?.gender)} Gender:   {user?.gender === 'M' ? 'Male' : user?.gender === 'F' ? 'Female' : 'Other'}
-                    </Typography>
-                  </Box>
-                  
-                  <Divider sx={{ my: 1, backgroundColor: 'rgba(255,255,255,0.1)' }} />
-                </Box>
-                <MenuItem 
-                  onClick={handleLogout} 
-                  sx={{ 
-                    gap: 1.25,
-                    '&:hover': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)'
-                    }
-                  }}
-                >
-                  <LogoutIcon fontSize="small" /> Logout
-                </MenuItem>
-              </Menu>
-            </Box>
+              {item.name}
+            </Typography>
           )}
+        </Box>
+      </Tooltip>
+    </Box>
+  );
 
-          {/* Mobile Menu Button */}
+  const renderMobileLink = (item) => (
+    <Box 
+      key={item.path} 
+      sx={{ 
+        position: 'relative',
+        width: '100%'
+      }}
+    >
+      <ListItem
+        component="a"
+        href={item.path}
+        onClick={(e) => {
+          const rect = e.currentTarget.getBoundingClientRect();
+          setClickedLinkPosition({
+            top: rect.bottom,
+            left: rect.left + rect.width / 2
+          });
+          handleLinkClick(e);
+        }}
+        sx={{
+          px: 3,
+          py: 1.5,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          textDecoration: 'none',
+          color: theme === 'dark' ? 'white' : 'text.primary',
+          '&:hover': {
+            backgroundColor: 'rgba(0,0,0,0.05)',
+            color: 'primary.main'
+          },
+          transition: 'all 0.2s ease',
+          cursor: 'pointer'
+        }}
+      >
+        <Box sx={{ minWidth: '24px', display: 'flex', justifyContent: 'center' }}>
+          {item.icon}
+        </Box>
+        <Typography sx={{ fontWeight: '500', fontSize: '1rem' }}>
+          {item.name}
+        </Typography>
+      </ListItem>
+    </Box>
+  );
+
+  const renderLanguageSelector = (isMobile = false) => (
+    <FormControl size="small" sx={{ 
+      minWidth: isMobile ? 80 : 120,
+      mr: isSmallScreen ? 0 : 1,
+      position: 'relative'
+    }}>
+      <Select
+        value={language}
+        onChange={handleLanguageChange}
+        displayEmpty
+        sx={{ 
+          backgroundColor: 'rgba(255,255,255,0.9)',
+          borderRadius: 1,
+          '& .MuiSelect-select': {
+            py: isSmallScreen ? 0.5 : 0.8,
+            minHeight: 'auto',
+            display: 'flex',
+            alignItems: 'center',
+            fontSize: isSmallScreen ? '0.75rem' : '0.875rem'
+          },
+          '& .MuiOutlinedInput-notchedOutline': {
+            border: 'none'
+          }
+        }}
+        MenuProps={{
+          disableScrollLock: true,
+          PaperProps: {
+            sx: {
+              borderRadius: 1,
+              mt: 1,
+              minWidth: isMobile ? 160 : 180,
+              position: 'absolute',
+              zIndex: 1300
+            }
+          },
+          anchorOrigin: {
+            vertical: 'bottom',
+            horizontal: 'left'
+          },
+          transformOrigin: {
+            vertical: 'top',
+            horizontal: 'left'
+          }
+        }}
+        renderValue={(selected) => {
+          if (!selected) {
+            return (
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <LanguageIcon sx={{ 
+                  color: muiTheme.palette.primary.main,
+                  mr: 0.5,
+                  fontSize: isSmallScreen ? '1rem' : '1.25rem'
+                }} />
+                {!isSmallScreen && (
+                  <Typography variant="body2" sx={{ fontSize: 'inherit' }}>
+                    Language
+                  </Typography>
+                )}
+              </Box>
+            );
+          }
+          const lang = languages.find(l => l.code === selected);
+          return (
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Box 
+                component="img" 
+                src={lang?.flag} 
+                alt={lang?.country}
+                sx={{ 
+                  width: 20, 
+                  height: 14, 
+                  mr: 0.5,
+                  objectFit: 'cover',
+                  borderRadius: 0.5,
+                  border: '1px solid rgba(0,0,0,0.1)'
+                }} 
+              />
+              {!isSmallScreen && (
+                <Typography variant="body2" sx={{ fontSize: 'inherit' }}>
+                  {lang?.name}
+                </Typography>
+              )}
+            </Box>
+          );
+        }}
+      >
+        {languages.map((lang) => (
+          <MenuItem key={lang.code} value={lang.code} sx={{ fontSize: '0.875rem' }}>
+            <ListItemIcon sx={{ minWidth: 36 }}>
+              <Box 
+                component="img" 
+                src={lang.flag} 
+                alt={lang.country}
+                sx={{ 
+                  width: 24, 
+                  height: 16, 
+                  objectFit: 'cover',
+                  borderRadius: 0.5,
+                  border: '1px solid rgba(0,0,0,0.1)'
+                }} 
+              />
+            </ListItemIcon>
+            <Typography variant="body2">{lang.name}</Typography>
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  );
+
+  return (
+    <Box
+      component="header"
+      sx={{
+        background: `linear-gradient(270deg, ${headerColors.gradientStart} 0%, ${headerColors.gradientEnd} 100%)`,
+        py: 0.5,
+        px: 2,
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        position: 'sticky',
+        top: 0,
+        zIndex: 1100,
+        width: '100%',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+      }}
+    >
+      {/* Logo */}
+      <Box
+        component={Link}
+        to="/"
+        sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          textDecoration: 'none', 
+          flexShrink: 0,
+          mr: isSmallScreen ? 0 : 2
+        }}
+      >
+        <Box
+          component="img"
+          src={logo}
+          alt="MedicalChain Logo"
+          sx={{
+            height: isSmallScreen ? 80 : 104,
+            width: isSmallScreen ? '100px' : '126px',
+          }}
+        />
+      </Box>
+
+      {/* Navigation Links - Hidden on mobile */}
+      {!isSmallScreen && (
+        <Box 
+          component="nav" 
+          sx={{ 
+            display: 'flex',
+            justifyContent: 'right',
+            alignItems: 'right',
+            flexGrow: 1,
+            marginRight: '5%',
+            gap: 2,
+            overflow: 'hidden'
+          }}
+        >
+          {renderLanguageSelector()}
+          {commonLinks.map((item) => renderDesktopLink(item))}
+        </Box>
+      )}
+
+      {/* Right side controls */}
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: { xs: 1.5, sm: 2 },
+          flexShrink: 0
+        }}
+      >
+        {/* Language selector - mobile only */}
+        {isSmallScreen && renderLanguageSelector(true)}
+
+        <Tooltip title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}>
           <IconButton 
-            color="inherit"
-            aria-label="open menu"
-            onClick={handleDrawerToggle}
+            onClick={toggleTheme} 
             sx={{ 
               color: 'white',
               '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
                 transform: 'scale(1.1)'
               },
-              padding: { xs: '4px', sm: '6px', md: '6px' },
-              display: { md: 'none' },
-              transition: 'all 0.2s ease'
+              transition: 'transform 0.2s ease',
+              p: isSmallScreen ? '6px' : '8px',
+              mx: isSmallScreen ? 0.5 : 0
             }}
           >
-            <MenuIcon sx={{ 
-              fontSize: { 
-                xs: '1.3rem', 
-                sm: '1.4rem', 
-                md: '1.4rem'
-              } 
-            }} />
+            {theme === 'light' ? (
+              <NightsStayIcon fontSize={isSmallScreen ? "small" : "medium"} />
+            ) : (
+              <WbSunnyIcon fontSize={isSmallScreen ? "small" : "medium"} />
+            )}
           </IconButton>
-        </Box>
+        </Tooltip>
+
+        {isAuthenticated && !isSmallScreen && (
+          <Box>
+            <Tooltip title="Account settings">
+              <IconButton 
+                onClick={handleUserMenuOpen} 
+                sx={{ 
+                  color: 'white',
+                  '&:hover': {
+                    transform: 'scale(1.1)'
+                  },
+                  transition: 'transform 0.2s ease'
+                }}
+              >
+                <Avatar alt={user?.username} src={user?.profile_image} sx={{ width: 32, height: 32 }} />
+              </IconButton>
+            </Tooltip>
+            <Menu 
+              anchorEl={anchorEl} 
+              open={Boolean(anchorEl)} 
+              onClose={handleUserMenuClose}
+              PaperProps={{
+                sx: {
+                  mt: 1,
+                  minWidth: '180px'
+                }
+              }}
+            >
+              <MenuItem disabled sx={{ opacity: 1, fontWeight: 500 }}>
+                {user?.username}
+              </MenuItem>
+              <MenuItem 
+                onClick={handleLogout}
+                sx={{
+                  '&:hover': {
+                    backgroundColor: 'rgba(0,0,0,0.05)'
+                  }
+                }}
+              >
+                <LogoutIcon fontSize="small" sx={{ mr: 1 }} /> 
+                Logout
+              </MenuItem>
+            </Menu>
+          </Box>
+        )}
+
+        {/* Menu button - mobile only */}
+        {isSmallScreen && (
+          <IconButton 
+            onClick={handleDrawerToggle} 
+            sx={{ 
+              color: 'white',
+              '&:hover': {
+                transform: 'scale(1.1)'
+              },
+              transition: 'transform 0.2s ease',
+              p: isSmallScreen ? '6px' : '8px',
+              ml: 0.7
+            }}
+          >
+            <MenuIcon fontSize={isSmallScreen ? "small" : "medium"} />
+          </IconButton>
+        )}
       </Box>
 
       {/* Mobile Drawer */}
-      <Drawer 
-        anchor="right" 
-        open={mobileOpen} 
+      <Drawer
+        anchor="right"
+        open={mobileOpen}
         onClose={handleDrawerToggle}
-        ModalProps={{
-          keepMounted: true
-        }}
-        sx={{ 
-          '& .MuiDrawer-paper': { 
-            width: isTinyScreen ? '90%' : isExtraSmallScreen ? '85%' : '75%', 
-            maxWidth: '320px',
-            marginTop: '75px',
-            height: '55%',
-            backgroundColor: muiTheme.palette.primary.dark,
-            color: 'white',
-            boxSizing: 'border-box',
-            borderLeft: '1px solid rgba(255,255,255,0.1)'
-          },
-          display: { md: 'none' }
+        PaperProps={{
+          sx: {
+            width: 280,
+            height: 'auto',
+            marginTop: isSmallScreen ? '72px' : '107px',
+            backgroundColor: theme === 'dark' ? 'background.paper' : 'background.default',
+            borderTopLeftRadius: 8,
+            borderBottomLeftRadius: 8
+          }
         }}
       >
-        <Box sx={{ 
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100%'
-        }}>
+        <Box>
           <Box sx={{ 
-            display: 'flex',
-            justifyContent: 'flex-end',
-            p: isTinyScreen ? 1 : 2,
-            position: 'sticky',
-            top: 0,
-            backgroundColor: muiTheme.palette.primary.dark,
-            zIndex: 1,
-            borderBottom: '1px solid rgba(255,255,255,0.1)'
+            display: 'flex', 
+            justifyContent: 'flex-end', 
+            p: 1,
+            borderBottom: '1px solid',
+            borderColor: 'divider'
           }}>
             <IconButton 
-              onClick={handleDrawerToggle} 
-              sx={{ 
-                color: 'white',
+              onClick={handleDrawerToggle}
+              sx={{
                 '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  transform: 'rotate(90deg)'
-                },
-                transition: 'all 0.3s ease'
+                  backgroundColor: 'rgba(0,0,0,0.05)'
+                }
               }}
             >
-              <CloseIcon sx={{ fontSize: '1.5rem' }} /> 
+              <CloseIcon />
             </IconButton>
           </Box>
-
-          {isAuthenticated && user && (
-            <>
-              <Box sx={{ 
-                p: isTinyScreen ? 1.5 : 2, 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 2,
-                borderBottom: '1px solid rgba(255,255,255,0.1)'
-              }}>
-                <Avatar 
-                  alt={user.username} 
-                  src={user.profile_image} 
-                  sx={{ 
-                    width: isTinyScreen ? 40 : 48, 
-                    height: isTinyScreen ? 40 : 48 
-                  }} 
-                />
-                <Box sx={{ overflow: 'hidden' }}>
-                  <Typography variant="subtitle1" sx={{ 
-                    fontWeight: 'bold',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }}>
-                    {user.username}
-                  </Typography>
-                  <Typography variant="body2" sx={{ 
-                    opacity: 0.8,
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }}>
-                    {user.email}
-                  </Typography>
-                  <Typography variant="body2" sx={{ 
-                    opacity: 0.8,
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    fontSize: '0.75rem',
-                    mt: 0.5
-                  }}>
-                    {user.first_name} {user.last_name}
-                  </Typography>
-                </Box>
-              </Box>
-              <Divider sx={{ backgroundColor: 'rgba(255,255,255,0.1)' }} />
-            </>
-          )}
-
-          <Box sx={{ 
-            flex: 1,
-            overflowY: 'auto',
-            py: 1,
-            '&::-webkit-scrollbar': {
-              width: '4px'
-            },
-            '&::-webkit-scrollbar-thumb': {
-              backgroundColor: 'rgba(255,255,255,0.2)',
-              borderRadius: '2px'
-            }
-          }}>
-            <List sx={{ p: 0 }}>
-              {commonLinks.map((item) => (
-                <React.Fragment key={item.name}>
-                  {renderMobileLink(item)}
-                </React.Fragment>
-              ))}
-            </List>
-
+          
+          <List sx={{ py: 0 }}>
+            {commonLinks.map((item, index) => (
+              <React.Fragment key={item.path}>
+                {renderMobileLink(item)}
+                {index < commonLinks.length - 1 && <Divider />}
+              </React.Fragment>
+            ))}
+            
             {isAuthenticated && (
               <>
-                <Divider sx={{ 
-                  backgroundColor: 'rgba(255,255,255,0.1)', 
-                  my: 1,
-                  mx: isTinyScreen ? 1 : 2
-                }} />
-                <List sx={{ p: 0 }}>
-                  <ListItem 
-                    onClick={handleLogout}
-                    sx={{ 
-                      px: isTinyScreen ? 1 : 2, 
-                      py: 1.5,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: isTinyScreen ? 1 : 2,
-                      color: 'rgba(255,255,255,0.9)',
-                      '&:hover': {
-                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                        color: 'white'
-                      }
-                    }}
-                  >
-                    <LogoutIcon />
-                    <Typography sx={{ fontWeight: '500' }}>Logout</Typography>
-                  </ListItem>
-                </List>
+                <Divider />
+                <ListItem 
+                  button 
+                  onClick={handleLogout}
+                  sx={{
+                    px: 3,
+                    py: 1.5,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2,
+                    color: theme === 'dark' ? 'white' : 'text.primary',
+                    '&:hover': {
+                      backgroundColor: 'rgba(0,0,0,0.05)',
+                      color: 'primary.main'
+                    }
+                  }}
+                >
+                  <LogoutIcon fontSize="small" />
+                  <Typography sx={{ fontWeight: '500', fontSize: '1rem' }}>
+                    Logout
+                  </Typography>
+                </ListItem>
               </>
             )}
-          </Box>
+          </List>
         </Box>
       </Drawer>
-    </>
+
+      {/* Feature still in development message */}
+      {showFeatureMessage && (
+        <Box
+          sx={{
+            position: 'fixed',
+            top: clickedLinkPosition.top,
+            left: clickedLinkPosition.left,
+            transform: 'translateX(-50%)',
+            backgroundColor: (theme) => theme.palette.info.dark,
+            color: 'white',
+            px: 2,
+            py: 1,
+            borderRadius: 1,
+            boxShadow: 3,
+            zIndex: 1200,
+            whiteSpace: 'nowrap',
+            fontSize: '0.875rem',
+            fontWeight: 500,
+            animation: 'fadeInOut 3s ease-in-out forwards',
+            '@keyframes fadeInOut': {
+              '0%': { 
+                opacity: 0, 
+                transform: 'translateX(-50%) translateY(-10px)' 
+              },
+              '10%': { 
+                opacity: 1, 
+                transform: 'translateX(-50%) translateY(0)' 
+              },
+              '90%': { 
+                opacity: 1, 
+                transform: 'translateX(-50%) translateY(0)' 
+              },
+              '100%': { 
+                opacity: 0, 
+                transform: 'translateX(-50%) translateY(-10px)' 
+              }
+            }
+          }}
+        >
+          Feature still in development
+        </Box>
+      )}
+    </Box>
   );
 }

@@ -1,19 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext.jsx';
 import { 
   Box, Button, Card, CardContent, Container,
   TextField, Typography, Alert, InputAdornment,
-  CircularProgress, Stack, Link
+  CircularProgress, Stack, FormControlLabel,
+  Checkbox, Grid, useTheme, Snackbar
 } from '@mui/material';
 import { Email, Lock } from '@mui/icons-material';
 import Footer from '@/components/footer/Footer.jsx';
 import Header from '@/components/header/Header.jsx';
 
+// Couleurs pour le dégradé
+const gradientColors = {
+  left: '#031733',
+  middle: '#5ab0e0',
+  right: '#031733'
+};
+
 const LoginPage = () => {
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
+    rememberMe: false
   });
   
   const [errors, setErrors] = useState({
@@ -21,9 +30,12 @@ const LoginPage = () => {
     password: '',
     general: ''
   });
+
+  const [forgotPasswordMessage, setForgotPasswordMessage] = useState(false);
   
   const { login, error: authError, loading, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const theme = useTheme();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -67,7 +79,7 @@ const LoginPage = () => {
     if (!validate()) return;
 
     try {
-      await login(formData.email, formData.password);
+      await login(formData.email, formData.password, formData.rememberMe);
     } catch (err) {
       console.error('Login error:', err);
       setErrors(prev => ({
@@ -78,11 +90,23 @@ const LoginPage = () => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({ 
+      ...prev, 
+      [name]: type === 'checkbox' ? checked : value 
+    }));
     if (errors[name] || errors.general) {
       setErrors(prev => ({ ...prev, [name]: '', general: '' }));
     }
+  };
+
+  const handleForgotPasswordClick = (e) => {
+    e.preventDefault();
+    setForgotPasswordMessage(true);
+  };
+
+  const handleCloseForgotPasswordMessage = () => {
+    setForgotPasswordMessage(false);
   };
 
   return (
@@ -91,7 +115,13 @@ const LoginPage = () => {
       <Container maxWidth="sm" sx={{ mt: 8, mb: 4 }}>
         <Card elevation={3}>
           <CardContent sx={{ p: 4 }}>
-            <Typography variant="h4" align="center" gutterBottom sx={{ mb: 4, fontWeight: 'bold' }}>
+            <Typography variant="h4" align="center" gutterBottom sx={{ 
+              mb: 4, 
+              fontWeight: 'bold',
+              background: `linear-gradient(90deg, ${gradientColors.left} 0%, ${gradientColors.middle} 50%, ${gradientColors.right} 100%)`,
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}>
               Login
             </Typography>
 
@@ -142,6 +172,38 @@ const LoginPage = () => {
                   autoComplete="current-password"
                 />
 
+                <Grid container alignItems="center" justifyContent="space-between">
+                  <Grid item>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          name="rememberMe"
+                          checked={formData.rememberMe}
+                          onChange={handleChange}
+                          color="primary"
+                        />
+                      }
+                      label="Remember me"
+                    />
+                  </Grid>
+                  <Grid item>
+                    <Link
+                      to="#"
+                      onClick={handleForgotPasswordClick}
+                      style={{
+                        color: '#1976d2',
+                        textDecoration: 'none',
+                        '&:hover': {
+                          textDecoration: 'underline',
+                        },
+                        fontSize: '0.875rem'
+                      }}
+                    >
+                      Forgot password?
+                    </Link>
+                  </Grid>
+                </Grid>
+
                 <Button
                   fullWidth
                   type="submit"
@@ -151,9 +213,28 @@ const LoginPage = () => {
                   sx={{ 
                     mt: 2, 
                     py: 1.5,
-                    backgroundColor: 'primary.main',
+                    background: `linear-gradient(90deg, ${gradientColors.left} 0%, ${gradientColors.middle} 50%, ${gradientColors.right} 100%)`,
+                    color: 'white',
                     '&:hover': {
-                      backgroundColor: 'primary.dark'
+                      opacity: 0.9,
+                      boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
+                    },
+                    transition: 'all 0.3s ease',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    '&::after': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      background: 'rgba(255,255,255,0.1)',
+                      opacity: 0,
+                      transition: 'opacity 0.3s ease'
+                    },
+                    '&:hover::after': {
+                      opacity: 1
                     }
                   }}
                 >
@@ -162,25 +243,40 @@ const LoginPage = () => {
               </Stack>
 
               <Box sx={{ textAlign: 'center', mt: 3 }}>
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  Don't have an account?
+                </Typography>
                 <Link
-                  href="/register"
-                  variant="body2"
-                  sx={{ 
-                    color: 'primary.main', 
-                    fontWeight: 'bold', 
-                    '&:hover': { 
+                  to="/register"
+                  style={{
+                    color: '#1976d2',
+                    fontWeight: 'bold',
+                    textDecoration: 'none',
+                    '&:hover': {
                       textDecoration: 'underline',
                     },
-                    cursor: 'pointer'
+                    fontSize: '1rem'
                   }}
                 >
-                  Don't have an account? Register
+                  Create an account
                 </Link>
               </Box>
             </Box>
           </CardContent>
         </Card>
       </Container>
+
+      <Snackbar
+        open={forgotPasswordMessage}
+        autoHideDuration={6000}
+        onClose={handleCloseForgotPasswordMessage}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseForgotPasswordMessage} severity="info" sx={{ width: '100%' }}>
+          Feature is still in development
+        </Alert>
+      </Snackbar>
+
       <Footer />
     </>
   );

@@ -1,0 +1,29 @@
+from PIL import Image, ImageOps
+
+# Load the image
+input_path = "/mnt/data/logo5.png"
+image = Image.open(input_path).convert("RGBA")
+
+# Create a version for light theme: darken the logo for visibility on light background
+dark_logo = ImageOps.colorize(image.convert("L"), black="black", white="gray")
+dark_logo = dark_logo.convert("RGBA")
+for x in range(dark_logo.width):
+    for y in range(dark_logo.height):
+        r, g, b, a = image.getpixel((x, y))
+        dark_logo.putpixel((x, y), (dark_logo.getpixel((x, y))[0], dark_logo.getpixel((x, y))[1], dark_logo.getpixel((x, y))[2], a))
+
+# Create a version for dark theme: brighten the logo for visibility on dark background
+light_logo = ImageOps.invert(image.convert("RGB")).convert("RGBA")
+for x in range(light_logo.width):
+    for y in range(light_logo.height):
+        r, g, b, a = image.getpixel((x, y))
+        light_logo.putpixel((x, y), (light_logo.getpixel((x, y))[0], light_logo.getpixel((x, y))[1], light_logo.getpixel((x, y))[2], a))
+
+# Save both versions
+dark_logo_path = "/mnt/data/logo5_dark.png"
+light_logo_path = "/mnt/data/logo5_light.png"
+dark_logo.save(dark_logo_path)
+light_logo.save(light_logo_path)
+
+dark_logo_path, light_logo_path
+
