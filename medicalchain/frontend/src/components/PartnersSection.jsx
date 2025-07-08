@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Box, 
   Container, 
@@ -8,308 +8,357 @@ import {
   useMediaQuery,
   Link,
   Fade,
-  Grow,
-  Slide
+  Alert,
+  styled
 } from "@mui/material";
-import ChevronLeft from '@mui/icons-material/ChevronLeft';
-import ChevronRight from '@mui/icons-material/ChevronRight';
-import { motion, useAnimation } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
+import ArrowBackIosNew from '@mui/icons-material/ArrowBackIosNew';
+import ArrowForwardIos from '@mui/icons-material/ArrowForwardIos';
 
-const BurundiFlag = () => (
-  <svg 
-    width="24"
-    height="16"
-    viewBox="0 0 36 24"
-    style={{
-      verticalAlign: 'middle',
-      marginRight: '8px',
-      display: 'inline-block',
-      border: '1px solid rgba(0,0,0,0.1)'
-    }}
-  >
-    <rect x="0" y="0" width="36" height="24" fill="#ffffff"/>
-    <line x1="0" y1="0" x2="36" y2="24" stroke="#ce1021" strokeWidth="7.2"/>
-    <line x1="36" y1="0" x2="0" y2="24" stroke="#ce1021" strokeWidth="7.2"/>
-    <circle cx="18" cy="12" r="6" fill="#18b637"/>
-    <g fill="#ffffff">
-      <path d="M18 6l1.5 2.6h-3z" transform="rotate(30 18 12)"/>
-      <path d="M18 6l-1.5 2.6h3z" transform="rotate(30 18 12)"/>
-      <path d="M24 12l-2.6-1.5v3z" transform="rotate(30 18 12)"/>
-      <path d="M24 12l-2.6 1.5v-3z" transform="rotate(30 18 12)"/>
-      <path d="M12 12l2.6-1.5v3z" transform="rotate(30 18 12)"/>
-      <path d="M12 12l2.6 1.5v-3z" transform="rotate(30 18 12)"/>
-    </g>
-  </svg>
+// Import des images locales
+import HopitalDeGitega from '@/assets/images/HopitalDeGitega.jpg';
+import HopitalMilitaire from '@/assets/images/HopitalMilitaire.jpg';
+import kiraHospital from '@/assets/images/kiraHospital.jpg';
+import MaisonMedicale from '@/assets/images/MaisonMedicale.jpg';
+import PollyclinicMuyinga from '@/assets/images/PollyclinicMuyinga.jpg';
+import RoisKhaled from '@/assets/images/RoisKhaled.jpg';
+
+// Couleurs pour le dégradé (de droite à gauche)
+const colors = {
+  gradientStart: '#5ab0e0',  // Bleu clair (droite)
+  gradientEnd: '#031733',    // Bleu foncé (gauche)
+  primary: '#005b96',
+  secondary: '#0b7d66',
+  accent: '#ff7b25',
+  white: '#ffffff',
+  lightGray: '#f5f7fa',
+  border: 'rgba(255,255,255,0.2)'
+};
+
+// Partner logo imports
+const partnerLogos = {
+  kiraHospital: kiraHospital,
+  maisonMedical: MaisonMedicale,
+  hopitalMilitaire: HopitalMilitaire,
+  roisKhaled: RoisKhaled,
+  pollyclinicMuyinga: PollyclinicMuyinga,
+  hopitalGitega: HopitalDeGitega
+};
+
+// Fallback component for broken images
+const FallbackLogo = ({ name }) => (
+  <Box sx={{
+    width: 60,
+    height: 60,
+    borderRadius: '50%',
+    bgcolor: 'rgba(255,255,255,0.1)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: colors.white,
+    fontWeight: 'bold',
+    fontSize: '1.2rem',
+    border: `1px solid ${colors.border}`
+  }}>
+    {name.split(' ').map(w => w[0]).join('')}
+  </Box>
 );
 
+const ScrollButton = styled(IconButton)(({ theme }) => ({
+  position: 'absolute',
+  top: '50%',
+  transform: 'translateY(-50%)',
+  color: colors.white,
+  zIndex: 2,
+  backgroundColor: 'rgba(3,23,51,0.7)',
+  '&:hover': { 
+    backgroundColor: colors.gradientEnd,
+  },
+  padding: theme.spacing(1.5),
+  backdropFilter: 'blur(4px)',
+  transition: 'all 0.3s ease',
+  boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+  '&:active': {
+    transform: 'translateY(-50%) scale(0.95)'
+  },
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(1)
+  }
+}));
+
 const PartnersSection = () => {
-  const [loaded, setLoaded] = useState(false);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(true);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [clickedPartnerIndex, setClickedPartnerIndex] = useState(null);
+  const [imageErrors, setImageErrors] = useState({});
+  const scrollContainerRef = useRef(null);
   const theme = useTheme();
-  const isExtraSmall = useMediaQuery('(max-width:400px)');
-  const isSmall = useMediaQuery('(max-width:600px)');
-  const isMedium = useMediaQuery('(max-width:900px)');
-  const isLarge = useMediaQuery('(min-width:1200px)');
-  const isPortrait = useMediaQuery('(orientation: portrait)');
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   
-  // Animation controls for scroll
-  const controls = useAnimation();
-  const [ref, inView] = useInView({
-    threshold: 0.1,
-    triggerOnce: false
-  });
-
-  useEffect(() => {
-    setLoaded(true);
-    if (inView) {
-      controls.start("visible");
-    }
-  }, [inView, controls]);
-
-  const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        when: "beforeChildren",
-        staggerChildren: 0.1,
-        duration: 0.6
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 10
-      }
-    }
-  };
-
   const partners = [
-    { name: "KiraHospital", url: "/partners/kira-hospital" }, 
-    { name: "Maison Medical", url: "/partners/maison-medical" }, 
-    { name: "Hopital Militaire", url: "/partners/hopital-militaire" }, 
-    { name: "Rois Khaled", url: "/partners/rois-khaled" },
-    { name: "Pollyclinic Muyinga ", url: "/partners/Colyclinic Muyinga" }, 
-    { name: "Prince Legent", url: "/partners/prince-legent" }, 
-    { name: "Hopital Kibuye", url: "/partners/hopital-kibuye" }, 
-    { name: "Hopital Bethanie", url: "/partners/hopital-bethanie" }, 
-    { name: "Hopital de Gitega", url: "/partners/hopital-gitega" },
-    { name: "Centre de Sante (CS) Hope", url: "/partners/CS-Hope" },
-    { name: "Centre de Sante (DS) Kinama", url: "/partners/CS-Kinama" }
+    { name: "Kira Hospital", url: "/partners/kira-hospital", logo: partnerLogos.kiraHospital, key: 'kiraHospital' }, 
+    { name: "Maison Medicale", url: "/partners/maison-medical", logo: partnerLogos.maisonMedical, key: 'maisonMedical' }, 
+    { name: "Hopital Militaire", url: "/partners/hopital-militaire", logo: partnerLogos.hopitalMilitaire, key: 'hopitalMilitaire' }, 
+    { name: "Rois Khaled Hospital", url: "/partners/rois-khaled", logo: partnerLogos.roisKhaled, key: 'roisKhaled' },
+    { name: "Pollyclinic Muyinga", url: "/partners/pollyclinic-muyinga", logo: partnerLogos.pollyclinicMuyinga, key: 'pollyclinicMuyinga' }, 
+    { name: "Hopital de Gitega", url: "/partners/hopital-gitega", logo: partnerLogos.hopitalGitega, key: 'hopitalGitega' }
   ];
 
-  const handleScroll = (direction) => {
-    const container = document.getElementById('partners-scroll-container');
-    const scrollAmount = isExtraSmall ? 150 : isSmall ? 200 : isMedium ? 250 : 300;
-    container.scrollBy({ 
+  const handleImageError = (key) => {
+    setImageErrors(prev => ({ ...prev, [key]: true }));
+  };
+
+  const calculateActiveIndex = useCallback(() => {
+    if (!scrollContainerRef.current) return 0;
+    const container = scrollContainerRef.current;
+    const scrollPosition = container.scrollLeft;
+    const itemWidth = container.scrollWidth / partners.length;
+    return Math.min(Math.round(scrollPosition / itemWidth), partners.length - 1);
+  }, [partners.length]);
+
+  const checkScrollPosition = useCallback(() => {
+    if (!scrollContainerRef.current) return;
+    const container = scrollContainerRef.current;
+    const { scrollLeft, scrollWidth, clientWidth } = container;
+    
+    setShowLeftArrow(scrollLeft > 0);
+    setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 1);
+    setActiveIndex(calculateActiveIndex());
+  }, [calculateActiveIndex]);
+
+  const handleScroll = useCallback((direction) => {
+    if (!scrollContainerRef.current) return;
+    const scrollAmount = isMobile ? 250 : 400;
+    scrollContainerRef.current.scrollBy({ 
       left: direction === 'left' ? -scrollAmount : scrollAmount,
       behavior: 'smooth' 
     });
-  };
+  }, [isMobile]);
+
+  const scrollToPartner = useCallback((index) => {
+    if (!scrollContainerRef.current) return;
+    const container = scrollContainerRef.current;
+    const itemWidth = container.scrollWidth / partners.length;
+    container.scrollTo({
+      left: index * itemWidth,
+      behavior: 'smooth'
+    });
+    setActiveIndex(index);
+  }, [partners.length]);
+
+  const handlePartnerClick = useCallback((e, index) => {
+    e.preventDefault();
+    setClickedPartnerIndex(index);
+    setTimeout(() => setClickedPartnerIndex(null), 3000);
+    scrollToPartner(index);
+  }, [scrollToPartner]);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    
+    container.addEventListener('scroll', checkScrollPosition);
+    checkScrollPosition();
+    
+    return () => container.removeEventListener('scroll', checkScrollPosition);
+  }, [checkScrollPosition]);
 
   return (
     <Box 
-      ref={ref}
       sx={{ 
-        py: { xs: 3, sm: 4, md: 5 },
-        px: { xs: 0, sm: 1, md: 2 },
-        backgroundColor: '#114680',
-        borderRadius: { xs: 0, sm: '16px', md: '24px' },
-        mx: 'auto', 
-        my: { xs: 3, sm: 4, md: 5 },
+        py: { xs: 4, sm: 5, md: 6 },
+        px: { xs: 0, sm: 2 },
+        background: `linear-gradient(270deg, ${colors.gradientStart} 0%, ${colors.gradientEnd} 100%)`,
+        borderRadius: { xs: 0, sm: 3 },
+        mx: 'auto',
+        my: { xs: 4, sm: 5 },
         position: 'relative',
         overflow: 'hidden',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-        maxWidth: { xs: '100%', sm: '95%', md: '1200px' }
+        boxShadow: 3,
+        maxWidth: { lg: 1200 }
       }}
     >
-      <motion.div
-        initial="hidden"
-        animate={controls}
-        variants={containerVariants}
-      >
-        <Container sx={{ 
+      <Container sx={{ 
+        position: 'relative',
+        maxWidth: '100% !important',
+        px: { xs: '16px !important', sm: '24px !important' }
+      }}>
+        <Typography variant="h6" sx={{ 
+          textAlign: 'center',
+          color: colors.white,
+          mb: { xs: 3, sm: 4 },
+          fontSize: { xs: '1.1rem', sm: '1.2rem' },
+          textTransform: 'uppercase',
+          letterSpacing: 1,
+          fontWeight: 500,
           position: 'relative',
-          maxWidth: '100% !important',
-          px: { xs: '16px !important', sm: '24px !important', md: '32px !important' }
+          '&:after': {
+            content: '""',
+            display: 'block',
+            width: 60,
+            height: 2,
+            backgroundColor: 'rgba(255,255,255,0.3)',
+            margin: '12px auto 0'
+          }
         }}>
-          <motion.div variants={itemVariants}>
-            <Typography variant="h6" sx={{ 
-              textAlign: 'center',
-              color: 'white',
-              mb: { xs: 2, sm: 3, md: 4 },
-              fontSize: { 
-                xs: isExtraSmall ? '0.9rem' : '1rem', 
-                sm: '1.05rem',
-                md: '1.125rem' 
-              },
-              textTransform: 'uppercase', 
-              letterSpacing: '1px',
-              fontWeight: 500,
-              position: 'relative',
-              '&:after': {
-                content: '""',
-                display: 'block',
-                width: '60px',
-                height: '2px',
-                backgroundColor: 'rgba(255,255,255,0.3)',
-                margin: '12px auto 0'
-              }
-            }}>
-              Our Institutional Partners
-            </Typography>
-          </motion.div>
+          Our Institutional Partners
+        </Typography>
 
-          {(isSmall || isMedium) && (
-            <>
-              <Slide direction="right" in={loaded} timeout={1200}>
-                <IconButton 
-                  sx={{
-                    position: 'absolute',
-                    left: 4,
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    color: 'white',
-                    zIndex: 2,
-                    backgroundColor: 'rgba(255,255,255,0.15)',
-                    '&:hover': { 
-                      backgroundColor: 'rgba(255,255,255,0.25)',
-                      transform: 'translateY(-50%) scale(1.1)'
-                    },
-                    padding: '6px',
-                    backdropFilter: 'blur(4px)',
-                    transition: 'all 0.2s ease',
-                    display: { xs: 'none', sm: 'flex' }
-                  }}
-                  onClick={() => handleScroll('left')}
-                  aria-label="Scroll partners left"
-                >
-                  <ChevronLeft fontSize={isSmall ? "small" : "medium"} />
-                </IconButton>
-              </Slide>
+        <Fade in={showLeftArrow}>
+          <ScrollButton sx={{ left: 8 }} onClick={() => handleScroll('left')}>
+            <ArrowBackIosNew fontSize={isMobile ? "small" : "medium"} />
+          </ScrollButton>
+        </Fade>
 
-              <Slide direction="left" in={loaded} timeout={1200}>
-                <IconButton 
-                  sx={{
-                    position: 'absolute',
-                    right: 4,
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    color: 'white',
-                    zIndex: 2,
-                    backgroundColor: 'rgba(255,255,255,0.15)',
-                    '&:hover': { 
-                      backgroundColor: 'rgba(255,255,255,0.25)',
-                      transform: 'translateY(-50%) scale(1.1)'
-                    },
-                    padding: '6px',
-                    backdropFilter: 'blur(4px)',
-                    transition: 'all 0.2s ease',
-                    display: { xs: 'none', sm: 'flex' }
-                  }}
-                  onClick={() => handleScroll('right')}
-                  aria-label="Scroll partners right"
-                >
-                  <ChevronRight fontSize={isSmall ? "small" : "medium"} />
-                </IconButton>
-              </Slide>
-            </>
-          )}
+        <Fade in={showRightArrow}>
+          <ScrollButton sx={{ right: 8 }} onClick={() => handleScroll('right')}>
+            <ArrowForwardIos fontSize={isMobile ? "small" : "medium"} />
+          </ScrollButton>
+        </Fade>
 
-          <Box
-            id="partners-scroll-container"
-            sx={{
-              display: 'flex',
-              overflowX: 'auto',
-              scrollbarWidth: 'none',
-              '&::-webkit-scrollbar': { 
-                display: 'none',
-                height: isSmall ? '4px' : '6px'
-              },
-              '&::-webkit-scrollbar-thumb': {
-                backgroundColor: 'rgba(255,255,255,0.3)',
-                borderRadius: '3px'
-              },
-              gap: { xs: 2, sm: 3, md: 4, lg: 6 },
-              px: { xs: 0, sm: 2, md: 4 },
-              py: 1,
-              scrollSnapType: 'x mandatory',
-              '& > *': { 
+        <Box
+          ref={scrollContainerRef}
+          sx={{
+            display: 'flex',
+            overflowX: 'auto',
+            scrollbarWidth: 'none',
+            '&::-webkit-scrollbar': { display: 'none' },
+            gap: { xs: 2, sm: 3 },
+            px: { xs: 0, sm: 2 },
+            py: 1,
+            scrollSnapType: 'x mandatory',
+            alignItems: 'center',
+            minHeight: { xs: 160, sm: 180 }
+          }}
+        >
+          {partners.map((partner, index) => (
+            <Box 
+              key={`partner-${index}`}
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
                 scrollSnapAlign: 'center',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  transform: 'scale(1.05)',
-                  boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
-                }
-              },
-              alignItems: 'center',
-              height: { 
-                xs: isExtraSmall ? '50px' : '60px', 
-                sm: '70px',
-                md: '80px' 
-              }
-            }}
-          >
-            {partners.map((partner, index) => (
-              <motion.div
-                key={index}
-                variants={itemVariants}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                mr: { xs: 2, sm: 3 },
+                flexShrink: 0,
+                width: { xs: 140, sm: 160 }
+              }}
+            >
+              <Link 
+                href={partner.url}
+                onClick={(e) => handlePartnerClick(e, index)}
+                sx={{ 
+                  px: { xs: 1.5, sm: 2 },
+                  py: 2,
+                  backgroundColor: index === activeIndex ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.08)',
+                  borderRadius: 2,
+                  border: `1px solid ${index === activeIndex ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.15)'}`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '100%',
+                  height: '100%',
+                  minHeight: { xs: 140, sm: 160 },
+                  textDecoration: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255,255,255,0.2)',
+                    transform: 'scale(1.05)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                  }
+                }}
               >
-                <Link 
-                  href={partner.url}
-                  sx={{ 
-                    flexShrink: 0,
-                    px: { 
-                      xs: isExtraSmall ? 1.5 : 2, 
-                      sm: 2.5,
-                      md: 3 
-                    },
-                    py: 1,
-                    backgroundColor: 'rgba(255,255,255,0.1)',
-                    borderRadius: '8px',
-                    border: '1px solid rgba(255,255,255,0.15)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    minWidth: 'fit-content',
-                    textDecoration: 'none',
-                    '&:hover': {
-                      backgroundColor: 'rgba(255,255,255,0.2)',
-                      borderColor: 'rgba(255,255,255,0.3)'
-                    }
-                  }}
-                  aria-label={`Partner: ${partner.name}`}
-                >
-                  <Typography sx={{ 
-                    color: 'white',
-                    fontWeight: 500,
-                    fontSize: { 
-                      xs: isExtraSmall ? '0.75rem' : '0.8rem', 
-                      sm: '0.85rem',
-                      md: '0.9rem',
-                      lg: '1rem'
-                    },
-                    whiteSpace: 'nowrap',
-                    letterSpacing: '0.5px'
-                  }}>
-                    {partner.name}
-                  </Typography>
-                </Link>
-              </motion.div>
-            ))}
-          </Box>
-        </Container>
-      </motion.div>
+                {imageErrors[partner.key] ? (
+                  <FallbackLogo name={partner.name} />
+                ) : (
+                  <Box 
+                    component="img"
+                    src={partner.logo}
+                    alt={partner.name}
+                    onError={() => handleImageError(partner.key)}
+                    sx={{
+                      width: 'auto',
+                      height: { xs: 60, sm: 70 },
+                      maxWidth: '100%',
+                      objectFit: 'contain',
+                      mb: 2,
+                      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
+                    }}
+                  />
+                )}
+                <Typography sx={{ 
+                  color: colors.white,
+                  fontWeight: 500,
+                  fontSize: { xs: '0.8rem', sm: '0.85rem' },
+                  textAlign: 'center',
+                  whiteSpace: 'normal',
+                  lineHeight: 1.2,
+                  letterSpacing: '0.5px',
+                  mt: 1,
+                  textShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                }}>
+                  {partner.name}
+                </Typography>
+              </Link>
+
+              {clickedPartnerIndex === index && (
+                <Fade in={clickedPartnerIndex === index}>
+                  <Alert 
+                    severity="info"
+                    sx={{ 
+                      mt: 1.5,
+                      py: 0,
+                      fontSize: '0.75rem',
+                      backgroundColor: 'rgba(255,255,255,0.15)',
+                      color: colors.white,
+                      border: `1px solid ${colors.border}`,
+                      backdropFilter: 'blur(4px)',
+                      '& .MuiAlert-icon': { color: colors.white }
+                    }}
+                  >
+                    Feature still in development
+                  </Alert>
+                </Fade>
+              )}
+            </Box>
+          ))}
+        </Box>
+
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          mt: 3,
+          gap: 1
+        }}>
+          {partners.map((_, index) => (
+            <IconButton
+              key={`indicator-${index}`}
+              size="small"
+              onClick={() => scrollToPartner(index)}
+              sx={{
+                p: 0,
+                '&:hover': { transform: 'scale(1.2)' },
+                transition: 'transform 0.2s ease'
+              }}
+            >
+              <Box 
+                sx={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  backgroundColor: index === activeIndex ? colors.white : 'rgba(255,255,255,0.3)',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    backgroundColor: index === activeIndex ? colors.white : 'rgba(255,255,255,0.7)'
+                  }
+                }}
+              />
+            </IconButton>
+          ))}
+        </Box>
+      </Container>
     </Box>
   );
 };

@@ -13,7 +13,11 @@ import {
   useMediaQuery,
   Fade,
   Grow,
-  Slide
+  Slide,
+  Alert,
+  TextField,
+  Menu,
+  MenuItem
 } from "@mui/material";
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
@@ -22,7 +26,6 @@ import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import CurrencyBitcoinIcon from '@mui/icons-material/CurrencyBitcoin';
 import WalletIcon from '@mui/icons-material/Wallet';
-import EthereumIcon from '@/components/EthereumIcon';
 import HomeIcon from '@mui/icons-material/Home';
 import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
 import InfoIcon from '@mui/icons-material/Info';
@@ -34,6 +37,17 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PhoneIcon from '@mui/icons-material/Phone';
 import EmailIcon from '@mui/icons-material/Email';
 import SendIcon from '@mui/icons-material/Send';
+import GetAppIcon from '@mui/icons-material/GetApp';
+import AndroidIcon from '@mui/icons-material/Android';
+import AppleIcon from '@mui/icons-material/Apple';
+import logo from '../../assets/logo/logo14.png';
+
+// Couleurs pour le dégradé à 3 couleurs
+const gradientColors = {
+  left: '#031733',    // Bleu foncé (gauche)
+  middle: '#5ab0e0',  // Bleu clair (milieu)
+  right: '#031733'    // Bleu foncé (droite)
+};
 
 const BurundiFlag = () => (
   <svg 
@@ -64,21 +78,45 @@ const BurundiFlag = () => (
 
 const Footer = () => {
   const [loaded, setLoaded] = useState(false);
+  const [showFeatureMessage, setShowFeatureMessage] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
   const isExtraSmall = useMediaQuery('(max-width:400px)');
   const isSmall = useMediaQuery('(max-width:600px)');
   const isMedium = useMediaQuery('(max-width:900px)');
   const isLarge = useMediaQuery('(min-width:1200px)');
+  const isSmallScreen = useMediaQuery('(max-width:900px)');
   
   useEffect(() => {
     setLoaded(true);
   }, []);
 
-  // Couleurs fixes en cas d'absence de ThemeProvider
-  const footerBgColor = '#114680';
+  useEffect(() => {
+    let timer;
+    if (showFeatureMessage) {
+      timer = setTimeout(() => {
+        setShowFeatureMessage(false);
+      }, 3000);
+    }
+    return () => clearTimeout(timer);
+  }, [showFeatureMessage]);
+
+  const handleDownloadClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
+
+  const handlePlatformSelect = (platform) => {
+    setShowFeatureMessage(true);
+    handleCloseMenu();
+  };
+
   const footerTextColor = '#FFFFFF';
   
   const footerStyles = {
-    backgroundColor: footerBgColor,
+    background: `linear-gradient(90deg, ${gradientColors.left} 0%, ${gradientColors.middle} 50%, ${gradientColors.right} 100%)`,
     color: footerTextColor,
     py: { xs: 4, sm: 5, md: 6 },
     px: { xs: 2, sm: 3, md: 4, lg: 6 },
@@ -118,17 +156,20 @@ const Footer = () => {
         <Container maxWidth="xl">
           <Grid container spacing={{ xs: 3, sm: 4, md: 6 }}>
             {/* Column 1 - About & Social */}
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={3}>
               <Grow in={loaded} timeout={500}>
                 <Box>
-                  <Typography variant="h6" sx={{ 
-                    fontWeight: 'bold', 
-                    mb: 2,
-                    fontSize: { xs: '1.1rem', sm: '1.2rem', md: '1.25rem' },
-                    color: footerTextColor
-                  }}>
-                    MediChain
-                  </Typography>
+                  <MuiLink href="/" sx={{ display: 'block', mb: 2 }}>
+                    <Box
+                      component="img"
+                      src={logo}
+                      alt="MedicalChain Logo"
+                      sx={{
+                        height: isSmallScreen ? 80 : 104,
+                        width: isSmallScreen ? '100px' : '126px',
+                      }}
+                    />
+                  </MuiLink>
                   <Typography variant="body1" sx={{ 
                     mb: 2, 
                     color: footerTextColor,
@@ -157,39 +198,6 @@ const Footer = () => {
                         key={index} 
                         sx={iconButtonStyles}
                         aria-label={`Follow us on ${['Facebook', 'Twitter', 'Instagram', 'LinkedIn'][index]}`}
-                      >
-                        <Icon fontSize={isSmall ? "small" : "medium"} />
-                      </IconButton>
-                    ))}
-                  </Stack>
-                </Box>
-              </Slide>
-
-              {/* Crypto Payments */}
-              <Slide direction="up" in={loaded} timeout={1000}>
-                <Box>
-                  <Typography variant="subtitle1" sx={{ 
-                    fontWeight: 'bold', 
-                    mb: 1.5, 
-                    color: footerTextColor,
-                    fontSize: { xs: '0.95rem', sm: '1rem' }
-                  }}>
-                    Crypto Payments
-                  </Typography>
-                  <Typography variant="body2" sx={{ 
-                    mb: 1.5, 
-                    fontStyle: 'italic', 
-                    color: footerTextColor,
-                    fontSize: { xs: '0.85rem', sm: '0.9rem' }
-                  }}>
-                    Blockchain integrated payments
-                  </Typography>
-                  <Stack direction="row" spacing={1.5}>
-                    {[AccountBalanceWalletIcon, CurrencyBitcoinIcon, EthereumIcon, WalletIcon].map((Icon, index) => (
-                      <IconButton 
-                        key={index} 
-                        sx={iconButtonStyles}
-                        aria-label={`Pay with ${['Wallet', 'Bitcoin', 'Ethereum', 'Crypto Wallet'][index]}`}
                       >
                         <Icon fontSize={isSmall ? "small" : "medium"} />
                       </IconButton>
@@ -244,7 +252,7 @@ const Footer = () => {
             </Grid>
             
             {/* Column 3 - Services */}
-            <Grid item xs={6} sm={3} md={3}>
+            <Grid item xs={6} sm={3} md={2}>
               <Grow in={loaded} timeout={700}>
                 <Box>
                   <Typography variant="h6" sx={{ 
@@ -287,7 +295,119 @@ const Footer = () => {
               </Grow>
             </Grid>
             
-            {/* Column 4 - Contact & Newsletter */}
+            {/* Column 4 - Download App */}
+            <Grid item xs={12} sm={6} md={2}>
+              <Grow in={loaded} timeout={800}>
+                <Box sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: { xs: 'flex-start', sm: 'center', md: 'flex-start' },
+                  position: 'relative'
+                }}>
+                  <Typography variant="h6" sx={{ 
+                    fontWeight: 'bold', 
+                    mb: 2,
+                    fontSize: { xs: '1.1rem', sm: '1.2rem', md: '1.25rem' },
+                    color: footerTextColor
+                  }}>
+                    Get Our App
+                  </Typography>
+                  
+                  <Button
+                    variant="outlined"
+                    startIcon={<GetAppIcon />}
+                    onClick={handleDownloadClick}
+                    sx={{
+                      color: footerTextColor,
+                      borderColor: '#ffc0cb',
+                      '&:hover': {
+                        borderColor: '#ffc0cb',
+                        backgroundColor: 'rgba(255, 192, 203, 0.1)'
+                      },
+                      px: 3,
+                      py: 1.5,
+                      borderRadius: '8px',
+                      fontWeight: 500,
+                      textTransform: 'none',
+                      fontSize: '0.95rem',
+                      whiteSpace: 'nowrap',
+                      mb: 2,
+                      width: '100%',
+                      maxWidth: '220px'
+                    }}
+                  >
+                    Download App
+                  </Button>
+
+                  <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={handleCloseMenu}
+                    disableScrollLock={true}  
+                    PaperProps={{
+                      elevation: 4,
+                      sx: {
+                        background: `linear-gradient(90deg, ${gradientColors.left} 0%, ${gradientColors.middle} 50%, ${gradientColors.right} 100%)`,
+                        color: footerTextColor,
+                        minWidth: '200px',
+                        '& .MuiMenuItem-root': {
+                          '&:hover': {
+                            backgroundColor: 'rgba(255,255,255,0.1)'
+                          }
+                        }
+                      }
+                    }}
+                  >
+                    <MenuItem onClick={() => handlePlatformSelect('android')} sx={{ py: 1.5 }}>
+                      <AndroidIcon sx={{ mr: 2, color: '#3ddc84' }} />
+                      <Typography variant="body1">For Android</Typography>
+                    </MenuItem>
+                    <MenuItem onClick={() => handlePlatformSelect('ios')} sx={{ py: 1.5 }}>
+                      <AppleIcon sx={{ mr: 2, color: '#999999' }} />
+                      <Typography variant="body1">For iOS</Typography>
+                    </MenuItem>
+                  </Menu>
+                  
+                  {showFeatureMessage && (
+                    <Fade in={showFeatureMessage}>
+                      <Alert 
+                        severity="info"
+                        sx={{ 
+                          position: 'absolute',
+                          bottom: -50,
+                          left: 0,
+                          right: 0,
+                          width: '100%',
+                          maxWidth: '220px',
+                          backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                          color: 'white',
+                          '& .MuiAlert-icon': { color: 'white' },
+                          animation: 'fadeInOut 3s ease-in-out forwards',
+                          '@keyframes fadeInOut': {
+                            '0%': { opacity: 0, transform: 'translateY(-10px)' },
+                            '10%': { opacity: 1, transform: 'translateY(0)' },
+                            '90%': { opacity: 1, transform: 'translateY(0)' },
+                            '100%': { opacity: 0, transform: 'translateY(-10px)' }
+                          }
+                        }}
+                      >
+                        Feature is still in development
+                      </Alert>
+                    </Fade>
+                  )}
+                  
+                  <Typography variant="body2" sx={{ 
+                    color: 'rgba(255,255,255,0.7)',
+                    fontSize: { xs: '0.85rem', sm: '0.9rem' },
+                    textAlign: { xs: 'left', sm: 'center', md: 'left' }
+                  }}>
+                    Available on iOS and Android
+                  </Typography>
+                </Box>
+              </Grow>
+            </Grid>
+            
+            {/* Column 5 - Contact & Newsletter */}
             <Grid item xs={12} md={3}>
               <Grow in={loaded} timeout={800}>
                 <Box>
@@ -375,43 +495,60 @@ const Footer = () => {
                     component="form" 
                     sx={{ 
                       display: 'flex',
-                      flexDirection: { xs: 'column', sm: 'row' },
-                      gap: 1
+                      alignItems: 'center',
+                      gap: 1,
+                      flexWrap: 'nowrap'
                     }}
                   >
-                    <input 
-                      type="email" 
-                      placeholder="Your email" 
-                      style={{ 
+                    <TextField
+                      variant="outlined"
+                      placeholder="Your email"
+                      size="small"
+                      sx={{
                         flex: 1,
-                        padding: '10px 12px',
-                        border: 'none',
-                        borderRadius: '4px',
-                        fontSize: '14px',
-                        minWidth: '120px'
+                        minWidth: '120px',
+                        '& .MuiOutlinedInput-root': {
+                          backgroundColor: 'white',
+                          borderRadius: '4px',
+                          '& fieldset': {
+                            borderColor: 'rgba(255,255,255,0.3)'
+                          },
+                          '&:hover fieldset': {
+                            borderColor: 'rgba(255,255,255,0.5)'
+                          }
+                        },
+                        '& .MuiInputBase-input': {
+                          py: '8.5px',
+                          fontSize: '0.875rem'
+                        }
                       }}
-                      aria-label="Your email address for newsletter"
+                      InputProps={{
+                        style: {
+                          color: '#333'
+                        }
+                      }}
                     />
                     <Button 
                       type="submit"
                       startIcon={<SendIcon />}
                       sx={{ 
-                        backgroundColor: footerBgColor,
+                        background: `linear-gradient(90deg, ${gradientColors.left} 0%, ${gradientColors.middle} 50%, ${gradientColors.right} 100%)`,
                         color: footerTextColor,
                         borderRadius: '4px',
+                        border: '1px solid rgba(255,255,255,0.3)',
                         '&:hover': { 
-                          backgroundColor: '#0d3a6b',
+                          opacity: 0.9,
                           transform: 'translateY(-1px)'
                         },
-                        minWidth: '120px',
-                        px: 3,
+                        minWidth: 'fit-content',
+                        px: 2,
                         whiteSpace: 'nowrap',
                         fontSize: { xs: '0.85rem', sm: '0.9rem' },
-                        py: { xs: 1, sm: 1.25 },
+                        height: '40px',
                         transition: 'all 0.2s ease'
                       }}
                     >
-                      Subscribe
+                      {isSmall ? '' : 'Subscribe'}
                     </Button>
                   </Box>
                 </Box>
@@ -431,7 +568,7 @@ const Footer = () => {
                 color: footerTextColor,
                 fontSize: { xs: '0.8rem', sm: '0.9rem' }
               }}>
-                © {new Date().getFullYear()} MediChain. All rights reserved.
+                © {new Date().getFullYear()} MedicalChain. All rights reserved.
               </Typography>
             </Box>
           </Fade>

@@ -25,6 +25,13 @@ import shem6 from '@/assets/images/shem6.jpg';
 import shem7 from '@/assets/images/shem7.jpg';
 import shem8 from '@/assets/images/shem8.jpg';
 
+// Couleurs pour le dégradé à 3 couleurs
+const gradientColors = {
+  left: '#031733',    // Bleu foncé (gauche)
+  middle: '#5ab0e0',  // Bleu clair (milieu)
+  right: '#031733'    // Bleu foncé (droite)
+};
+
 // Promoted doctors data
 const promotedDoctors = [
   {
@@ -186,9 +193,14 @@ const PromotionsSection = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [autoScroll, setAutoScroll] = useState(true);
 
-  const scrollSpeed = isSmall ? 2 : isMedium ? 2.5 : 3;
+  const scrollSpeed = isSmall ? 1.5 : isMedium ? 2 : 2.5;
   const controls = useAnimation();
   const [ref, inView] = useInView({ threshold: 0.1, triggerOnce: true });
+
+  // Calculate card width based on screen size
+  const cardWidth = isExtraSmall ? 280 : isSmall ? 300 : isMedium ? 320 : 350;
+  const cardsToShow = isSmall ? 2 : 3;
+  const scrollDistance = isSmall ? cardWidth * 2 : cardWidth * 3;
 
   // Effects
   useEffect(() => {
@@ -199,13 +211,13 @@ const PromotionsSection = () => {
   useEffect(() => {
     if (!autoScroll) return;
 
-    const maxX = -(promotedDoctors.length * (isSmall ? 260 : isMedium ? 280 : 320) - window.innerWidth + 100);
+    const maxX = -(promotedDoctors.length * cardWidth - (window.innerWidth - (isSmall ? 40 : 100)));
     const interval = setInterval(() => {
       setX(prev => (prev - scrollSpeed < maxX ? 0 : prev - scrollSpeed));
     }, 16);
 
     return () => clearInterval(interval);
-  }, [autoScroll, isSmall, isMedium]);
+  }, [autoScroll, isSmall, isMedium, cardWidth, scrollSpeed]);
 
   useEffect(() => {
     if (errorMessage) {
@@ -218,15 +230,15 @@ const PromotionsSection = () => {
 
   const handlePrev = () => {
     setAutoScroll(false);
-    setX(prev => Math.min(prev + (isSmall ? 300 : isMedium ? 400 : 500), 0));
-    setTimeout(() => setAutoScroll(true), 2000);
+    setX(prev => Math.min(prev + scrollDistance, 0));
+    setTimeout(() => setAutoScroll(true), 3000);
   };
 
   const handleNext = () => {
     setAutoScroll(false);
-    const maxX = -(promotedDoctors.length * (isSmall ? 260 : isMedium ? 280 : 320) - window.innerWidth + 100);
-    setX(prev => Math.max(prev - (isSmall ? 300 : isMedium ? 400 : 500), maxX));
-    setTimeout(() => setAutoScroll(true), 2000);
+    const maxX = -(promotedDoctors.length * cardWidth - (window.innerWidth - (isSmall ? 40 : 100)));
+    setX(prev => Math.max(prev - scrollDistance, maxX));
+    setTimeout(() => setAutoScroll(true), 3000);
   };
 
   const handleCloseSnackbar = () => {
@@ -283,86 +295,6 @@ const PromotionsSection = () => {
       }}
     >
       <Container maxWidth="lg">
-        {/* Promotion Section */}
-        <motion.div variants={itemVariants}>
-          <Box sx={{
-            textAlign: 'center',
-            mb: { xs: 4, sm: 5, md: 6 },
-            p: { xs: 3, sm: 4 },
-            backgroundColor: theme.palette.background.paper,
-            borderRadius: '16px',
-            boxShadow: theme.shadows[2],
-            border: `1px solid ${theme.palette.divider}`,
-            mx: { xs: 0, sm: 2 }
-          }}>
-            <Typography variant="h4" sx={{ 
-              fontWeight: 'bold',
-              color: theme.palette.primary.main,
-              mb: 2,
-              fontSize: { 
-                xs: '1.25rem', 
-                sm: '1.5rem', 
-                md: '1.75rem',
-                lg: '2rem' 
-              },
-              lineHeight: 1.2
-            }}>
-              Doctor, increase your visibility!
-            </Typography>
-            
-            <Typography variant="body1" sx={{ 
-              color: theme.palette.text.secondary,
-              mb: { xs: 3, sm: 4 },
-              maxWidth: '800px',
-              mx: 'auto',
-              fontSize: { 
-                xs: '0.95rem', 
-                sm: '1rem', 
-                md: '1.1rem' 
-              },
-              lineHeight: 1.6
-            }}>
-              Subscribe to our promotions and attract more patients easily.
-            </Typography>
-
-            {errorMessage && (
-              <Typography variant="body2" sx={{ 
-                color: theme.palette.error.main,
-                mb: 2,
-                fontWeight: 'bold',
-                fontSize: { xs: '0.9rem', sm: '1rem' }
-              }}>
-                {errorMessage}
-              </Typography>
-            )}
-
-            <Button 
-              variant="contained"
-              size="large"
-              onClick={handleJoinNow}
-              disabled={loading}
-              sx={{
-                backgroundColor: theme.palette.primary.main,
-                color: theme.palette.primary.contrastText,
-                px: { xs: 4, sm: 5, md: 6 },
-                py: { xs: 1, sm: 1.25, md: 1.5 },
-                borderRadius: '8px',
-                fontWeight: 'bold',
-                textTransform: 'none',
-                fontSize: { xs: '0.95rem', sm: '1rem' },
-                '&:hover': {
-                  backgroundColor: theme.palette.primary.dark,
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
-                },
-                transition: 'all 0.2s ease'
-              }}
-            >
-              {loading ? 'Verifying...' : 'Subscribe Now'}
-            </Button>
-          </Box>
-        </motion.div>
-
         {/* Promoted Doctors Section */}
         <motion.div variants={itemVariants}>
           <Typography variant="h4" sx={{ 
@@ -377,7 +309,7 @@ const PromotionsSection = () => {
               lg: '2.25rem' 
             }
           }}>
-            Featured Doctors
+            Promoted Doctors
           </Typography>
         </motion.div>
         
@@ -407,73 +339,68 @@ const PromotionsSection = () => {
           mx: 'auto',
           py: 2
         }}>
-          <motion.div 
-            variants={itemVariants}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+          <IconButton
+            onClick={handlePrev}
+            sx={{
+              position: 'absolute',
+              left: { xs: -10, sm: -12, md: -16 },
+              top: '50%',
+              transform: 'translateY(-50%)',
+              zIndex: 10,
+              backgroundColor: theme.palette.background.paper,
+              '&:hover': { 
+                backgroundColor: theme.palette.action.hover,
+                transform: 'translateY(-50%) scale(1.1)' 
+              },
+              transition: 'all 0.2s ease',
+              boxShadow: theme.shadows[4],
+              width: { xs: 36, sm: 40, md: 44 },
+              height: { xs: 36, sm: 40, md: 44 },
+              display: 'flex',
+              opacity: isSmall ? 0.9 : 1
+            }}
+            aria-label="Previous doctors"
           >
-            <IconButton
-              onClick={handlePrev}
-              sx={{
-                position: 'absolute',
-                left: { xs: -4, sm: -8, md: -12 },
-                top: '50%',
-                transform: 'translateY(-50%)',
-                zIndex: 2,
-                backgroundColor: theme.palette.background.paper,
-                '&:hover': { 
-                  backgroundColor: theme.palette.action.hover,
-                  transform: 'translateY(-50%) scale(1.1)' 
-                },
-                transition: 'all 0.2s ease',
-                boxShadow: theme.shadows[4],
-                display: isSmall ? 'none' : 'flex',
-                width: 40,
-                height: 40
-              }}
-              aria-label="Previous doctors"
-            >
-              <ChevronLeftIcon fontSize={isMedium ? "medium" : "large"} />
-            </IconButton>
-          </motion.div>
+            <ChevronLeftIcon fontSize={isSmall ? "medium" : "large"} />
+          </IconButton>
 
-          <motion.div 
-            variants={itemVariants}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+          <IconButton
+            onClick={handleNext}
+            sx={{
+              position: 'absolute',
+              right: { xs: -10, sm: -12, md: -16 },
+              top: '50%',
+              transform: 'translateY(-50%)',
+              zIndex: 10,
+              backgroundColor: theme.palette.background.paper,
+              '&:hover': { 
+                backgroundColor: theme.palette.action.hover,
+                transform: 'translateY(-50%) scale(1.1)' 
+              },
+              transition: 'all 0.2s ease',
+              boxShadow: theme.shadows[4],
+              width: { xs: 36, sm: 40, md: 44 },
+              height: { xs: 36, sm: 40, md: 44 },
+              display: 'flex',
+              opacity: isSmall ? 0.9 : 1
+            }}
+            aria-label="Next doctors"
           >
-            <IconButton
-              onClick={handleNext}
-              sx={{
-                position: 'absolute',
-                right: { xs: -4, sm: -8, md: -12 },
-                top: '50%',
-                transform: 'translateY(-50%)',
-                zIndex: 2,
-                backgroundColor: theme.palette.background.paper,
-                '&:hover': { 
-                  backgroundColor: theme.palette.action.hover,
-                  transform: 'translateY(-50%) scale(1.1)' 
-                },
-                transition: 'all 0.2s ease',
-                boxShadow: theme.shadows[4],
-                display: isSmall ? 'none' : 'flex',
-                width: 40,
-                height: 40
-              }}
-              aria-label="Next doctors"
-            >
-              <ChevronRightIcon fontSize={isMedium ? "medium" : "large"} />
-            </IconButton>
-          </motion.div>
+            <ChevronRightIcon fontSize={isSmall ? "medium" : "large"} />
+          </IconButton>
 
-          <Box sx={{ overflow: 'hidden', width: '100%', mx: { xs: -2, sm: 0 } }}>
+          <Box sx={{ 
+            overflow: 'hidden', 
+            width: '100%', 
+            mx: 'auto',
+            px: isSmall ? '16px' : 0
+          }}>
             <motion.div
               animate={{ x }}
               transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               drag="x"
               dragConstraints={{ 
-                left: -(promotedDoctors.length * (isSmall ? 260 : isMedium ? 280 : 320) - window.innerWidth + 100), 
+                left: -(promotedDoctors.length * cardWidth - (window.innerWidth - (isSmall ? 40 : 100))), 
                 right: 0 
               }}
               onDragStart={() => {
@@ -482,13 +409,14 @@ const PromotionsSection = () => {
               }}
               onDragEnd={() => {
                 setIsDragging(false);
-                setTimeout(() => setAutoScroll(true), 2000);
+                setTimeout(() => setAutoScroll(true), 3000);
               }}
               style={{ 
                 display: 'flex',
                 width: 'max-content',
                 cursor: isDragging ? 'grabbing' : 'grab',
-                paddingLeft: isSmall ? '16px' : '0'
+                paddingLeft: isSmall ? '8px' : '0',
+                gap: isSmall ? '16px' : '24px'
               }}
             >
               {[...promotedDoctors, ...promotedDoctors].map((doctor, index) => (
@@ -497,12 +425,110 @@ const PromotionsSection = () => {
                   doctor={doctor} 
                   isSmall={isSmall}
                   isMedium={isMedium}
+                  cardWidth={cardWidth}
                   onSelectDoctor={() => setSelectedDoctor(doctor)}
                 />
               ))}
             </motion.div>
           </Box>
         </Box>
+
+        {/* Promotion Section - Moved after the carousel */}
+        <motion.div variants={itemVariants}>
+          <Box sx={{
+            textAlign: 'center',
+            mt: { xs: 4, sm: 5, md: 6 },
+            mb: { xs: 0, sm: 0, md: 0 },
+            p: { xs: 3, sm: 4 },
+            backgroundColor: theme.palette.background.paper,
+            borderRadius: '16px',
+            boxShadow: theme.shadows[2],
+            border: `1px solid ${theme.palette.divider}`,
+            mx: { xs: 0, sm: 2 }
+          }}>
+            <Typography variant="h4" sx={{ 
+              fontWeight: 'bold',
+              color: theme.palette.primary.main,
+              mb: 2,
+              fontSize: { 
+                xs: '1.25rem', 
+                sm: '1.5rem', 
+                md: '1.75rem',
+                lg: '2rem' 
+              },
+              lineHeight: 1.2
+            }}>
+              Increase your visibility now!
+            </Typography>
+            
+            <Typography variant="body1" sx={{ 
+              color: theme.palette.text.secondary,
+              mb: { xs: 3, sm: 4 },
+              maxWidth: '800px',
+              mx: 'auto',
+              fontSize: { 
+                xs: '0.95rem', 
+                sm: '1rem', 
+                md: '1.1rem' 
+              },
+              lineHeight: 1.6
+            }}>
+              Explore our promotions in Subscribing to us and attract more patients easily.
+            </Typography>
+
+            {errorMessage && (
+              <Typography variant="body2" sx={{ 
+                color: theme.palette.error.main,
+                mb: 2,
+                fontWeight: 'bold',
+                fontSize: { xs: '0.9rem', sm: '1rem' }
+              }}>
+                {errorMessage}
+              </Typography>
+            )}
+
+            <Button 
+              variant="contained"
+              size="large"
+              onClick={handleJoinNow}
+              disabled={loading}
+              sx={{
+                background: `linear-gradient(90deg, ${gradientColors.left} 0%, ${gradientColors.middle} 50%, ${gradientColors.right} 100%)`,
+                color: 'white',
+                px: { xs: 4, sm: 5, md: 6 },
+                py: { xs: 1, sm: 1.25, md: 1.5 },
+                borderRadius: '8px',
+                fontWeight: 'bold',
+                textTransform: 'none',
+                fontSize: { xs: '0.95rem', sm: '1rem' },
+                '&:hover': {
+                  opacity: 0.9,
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
+                },
+                transition: 'all 0.2s ease',
+                position: 'relative',
+                overflow: 'hidden',
+                '&::after': {
+                  content: '""',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  background: 'rgba(255,255,255,0.1)',
+                  opacity: 0,
+                  transition: 'opacity 0.3s ease'
+                },
+                '&:hover::after': {
+                  opacity: 1
+                }
+              }}
+            >
+              {loading ? 'Verifying...' : 'Subscribe to Promotion now'}
+            </Button>
+          </Box>
+        </motion.div>
       </Container>
 
       {/* Payment Popup */}
@@ -541,7 +567,7 @@ const PromotionsSection = () => {
 };
 
 // DoctorCard Component
-const DoctorCard = ({ doctor, isSmall, isMedium, onSelectDoctor }) => {
+const DoctorCard = ({ doctor, isSmall, isMedium, cardWidth, onSelectDoctor }) => {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
@@ -574,8 +600,7 @@ const DoctorCard = ({ doctor, isSmall, isMedium, onSelectDoctor }) => {
       >
         <Box sx={{ 
           flexShrink: 0,
-          width: isSmall ? '260px' : isMedium ? '280px' : '320px',
-          mx: { xs: 2, sm: 3 },
+          width: cardWidth,
           borderRadius: '12px',
           overflow: 'hidden',
           boxShadow: theme.shadows[2],

@@ -1,8 +1,10 @@
-import { createTheme } from '@mui/material/styles/index.js';
-import { appColors } from '@/theme/colors.js';
+// ---------- 1. theme.js ----------
+import { createTheme } from '@mui/material/styles';
+import { appColors } from '@/theme/colors';
+import '@/assets/fonts/poppins.css';
 
 const baseTypography = {
-  fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
   fontSize: 14,
   htmlFontSize: 16,
   fontWeightLight: 300,
@@ -62,6 +64,7 @@ const createCompleteTheme = (mode) => {
           body: {
             margin: 0,
             padding: 0,
+            fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
             transition: 'all 0.3s ease',
           },
         },

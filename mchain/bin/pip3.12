@@ -1,4 +1,4 @@
-#!/home/fanuel045/MyProjects/PROJECTS/medicalChain/mchain/bin/python3.12
+#!/home/fanuel045/MyProjects/PROJECTS/medicalChain/mchain/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys

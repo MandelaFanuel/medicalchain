@@ -5,6 +5,7 @@ import {
   Box, Button, Card, CardContent, Container, TextField, Typography, Alert,
   InputAdornment, CircularProgress, Grid, Avatar, MenuItem, Dialog,
   DialogTitle, DialogContent, DialogActions, Stepper, Step, StepLabel, IconButton,
+  FormControlLabel, Checkbox
 } from '@mui/material';
 import {
   Email, Person, Lock, Home, Work, Badge, AddAPhoto, Male, Female, Transgender, Close,
@@ -14,6 +15,13 @@ import Header from '../../components/header/Header.jsx';
 import ProfessionalInfoForm from '../../components/doctor/ProfessionalInfoForm.js';
 import DocumentsForm from '../../components/doctor/DocumentsForm.js';
 import PaymentInfoForm from '../../components/doctor/ PaymentInfoForm.js';
+
+// Couleurs pour le dégradé
+const gradientColors = {
+  left: '#031733',
+  middle: '#5ab0e0',
+  right: '#031733'
+};
 
 const RegisterPage = () => {
   const { register, error: authError, loading, isAuthenticated } = useAuth();
@@ -31,6 +39,7 @@ const RegisterPage = () => {
     profile_image: null,
     previewImage: null,
     is_doctor: false,
+    termsAccepted: false,
     doctor_profile: {
       speciality: '',
       license_number: '',
@@ -51,6 +60,7 @@ const RegisterPage = () => {
     current_address: '',
     current_function: '',
     gender: '',
+    termsAccepted: '',
     general: '',
   });
 
@@ -91,8 +101,11 @@ const RegisterPage = () => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({ 
+      ...prev, 
+      [name]: type === 'checkbox' ? checked : value 
+    }));
     if (errors[name] || errors.general) {
       setErrors((prev) => ({ ...prev, [name]: '', general: '' }));
     }
@@ -108,6 +121,7 @@ const RegisterPage = () => {
       current_address: '',
       current_function: '',
       gender: '',
+      termsAccepted: '',
       general: '',
     };
     let isValid = true;
@@ -153,6 +167,11 @@ const RegisterPage = () => {
 
     if (!formData.current_function.trim()) {
       newErrors.current_function = 'Profession is required';
+      isValid = false;
+    }
+
+    if (!formData.termsAccepted) {
+      newErrors.termsAccepted = 'You must accept the terms and conditions';
       isValid = false;
     }
 
@@ -323,7 +342,13 @@ const RegisterPage = () => {
       <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
         <Card elevation={3}>
           <CardContent sx={{ p: 4 }}>
-            <Typography variant="h4" align="center" gutterBottom sx={{ mb: 4, fontWeight: 'bold' }}>
+            <Typography variant="h4" align="center" gutterBottom sx={{ 
+              mb: 4, 
+              fontWeight: 'bold',
+              background: `linear-gradient(90deg, ${gradientColors.left} 0%, ${gradientColors.middle} 50%, ${gradientColors.right} 100%)`,
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}>
               Create Account
             </Typography>
 
@@ -508,6 +533,29 @@ const RegisterPage = () => {
                     <MenuItem value="O">Other</MenuItem>
                   </TextField>
                 </Grid>
+
+                <Grid item xs={12}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        name="termsAccepted"
+                        checked={formData.termsAccepted}
+                        onChange={handleChange}
+                        color="primary"
+                      />
+                    }
+                    label={
+                      <Typography variant="body2">
+                        I agree to the <Link href="/terms" style={{ color: '#1976d2' }}>Terms and Conditions</Link> and <Link href="/privacy" style={{ color: '#1976d2' }}>Privacy Policy</Link>
+                      </Typography>
+                    }
+                  />
+                  {errors.termsAccepted && (
+                    <Typography color="error" variant="body2" sx={{ mt: -1, ml: 4 }}>
+                      {errors.termsAccepted}
+                    </Typography>
+                  )}
+                </Grid>
               </Grid>
 
               <Button
@@ -519,16 +567,38 @@ const RegisterPage = () => {
                 sx={{
                   mt: 3,
                   py: 1.5,
-                  backgroundColor: 'primary.main',
+                  background: `linear-gradient(90deg, ${gradientColors.left} 0%, ${gradientColors.middle} 50%, ${gradientColors.right} 100%)`,
+                  color: 'white',
                   '&:hover': {
-                    backgroundColor: 'primary.dark',
+                    opacity: 0.9,
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
                   },
+                  transition: 'all 0.3s ease',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  '&::after': {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'rgba(255,255,255,0.1)',
+                    opacity: 0,
+                    transition: 'opacity 0.3s ease'
+                  },
+                  '&:hover::after': {
+                    opacity: 1
+                  }
                 }}
               >
                 {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign Up'}
               </Button>
 
               <Box sx={{ textAlign: 'center', mt: 2 }}>
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  Already have an account?
+                </Typography>
                 <Link
                   to="/login"
                   style={{
@@ -538,10 +608,10 @@ const RegisterPage = () => {
                     '&:hover': {
                       textDecoration: 'underline',
                     },
-                    cursor: 'pointer',
+                    fontSize: '1rem'
                   }}
                 >
-                  Already have an account? Login
+                  Login here
                 </Link>
               </Box>
             </Box>
@@ -588,6 +658,13 @@ const RegisterPage = () => {
             color="primary"
             variant="contained"
             disabled={loading}
+            sx={{
+              background: `linear-gradient(90deg, ${gradientColors.left} 0%, ${gradientColors.middle} 50%, ${gradientColors.right} 100%)`,
+              color: 'white',
+              '&:hover': {
+                opacity: 0.9
+              }
+            }}
           >
             {loading ? <CircularProgress size={24} color="inherit" /> : activeStep === 2 ? 'Complete Registration' : 'Next'}
           </Button>

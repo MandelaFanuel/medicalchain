@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: medicalchain-prod
+    runtime: python
+    plan: free  # Spécifie explicitement le plan gratuit
+    branch: mchain  # Déploie depuis cette branche
+    
+    # Commandes de build optimisées
+    buildCommand: |
+      pip install -r medicalchain/requirements/prod.txt && \
+      cd medicalchain/frontend && \
+      npm install && \
+      npm run build && \
+      cd ../.. && \
+      python medicalchain/manage.py collectstatic --noinput
+
+    # Commande de démarrage corrigée
+    startCommand: gunicorn medicalchain.wsgi:application --bind 0.0.0.0:$PORT --timeout 120
+
+    # Variables d'environnement essentielles
+    envVars:
+      - key: DJANGO_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 20
+      - key: PYTHON_VERSION
+        value: 3.11.6  # Version spécifique recommandée
+      - key: DISABLE_COLLECTSTATIC
+        value: 0  # Active la collecte des fichiers statiques
+      - key: GUNICORN_CMD_ARGS
+        value: "--workers=2 --threads=4"  # Configuration pour le plan gratuit
+
+    # Paramètres avancés
+    autoDeploy: yes
+    healthCheckPath: /health-check/
