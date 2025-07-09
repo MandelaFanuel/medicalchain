@@ -1,17 +1,18 @@
+
 services:
   - type: web
     name: medicalchain-prod
     runtime: python
     plan: free
-    branch: mchain
-    
+    branch: main
+
     buildCommand: |
       pip install --upgrade pip
-      pip install -r medicalchain/requirements/prod.txt
-      cd medicalchain/frontend && npm install && npm run build
-      cd ../..
-      python medicalchain/manage.py collectstatic --noinput
-      python medicalchain/manage.py migrate --noinput
+      pip install -r requirements/prod.txt
+      cd frontend && npm install && npm run build
+      cd ..
+      python manage.py collectstatic --noinput
+      python manage.py migrate --noinput
 
     startCommand: gunicorn medicalchain.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120
 
@@ -21,19 +22,33 @@ services:
       - key: DJANGO_SETTINGS_MODULE
         value: medicalchain.settings.prod
       - key: SECRET_KEY
-        generateValue: true  # Render génère automatiquement une clé sécurisée
+        generateValue: true
+      - key: DEBUG
+        value: "0"
       - key: ALLOWED_HOSTS
-        value: "medicalchain-prod.onrender.com"  # À adapter avec votre URL réelle
-      - key: NODE_VERSION
-        value: 20
-      - key: PYTHON_VERSION
-        value: "3.11.6"
-      - key: DISABLE_COLLECTSTATIC
-        value: 0
+        value: "medicalchain-prod.onrender.com"
       - key: DATABASE_URL
         fromDatabase:
-          name: medicalchain_db  # Créez cette base de données séparément
+          name: medicalchain_db_prod
           property: connectionString
+      - key: REDIS_URL
+        value: "redis://redis:6379/0"
+      - key: BLOCKCHAIN_NETWORK
+        value: sepolia
+      - key: INFURA_API_KEY
+        value: "7dafda1f674d4ec49afb53fc6bfe8448"
+      - key: ETHERSCAN_API_KEY
+        value: "N1C827X4GWPEFQ4WT7PM11NV12J5PZ94JR"
+      - key: DEPLOYER_PRIVATE_KEY
+        value: "${{DEPLOYER_PRIVATE_KEY}}"  # Valeur sécurisée dans Render
+      - key: CONTRACT_ADDRESS
+        value: "0x377220624586d920f560f83222A032CA26e367F0"
+      - key: REACT_APP_API_URL
+        value: "https://medicalchain-prod.onrender.com/api"
+      - key: NODE_VERSION
+        value: "20"
+      - key: PYTHON_VERSION
+        value: 3.11.4
 
-    autoDeploy: yes
+    autoDeploy: true
     healthCheckPath: /health-check/
