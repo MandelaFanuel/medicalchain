@@ -1,9 +1,9 @@
 services:
   - type: web
-    name: medicalchain-prod
+    name: medicalchain-dev
     runtime: python
     plan: free
-    branch: mchain
+    branch: develop
     
     buildCommand: |
       pip install --upgrade pip
