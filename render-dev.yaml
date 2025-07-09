@@ -1,35 +1,51 @@
 services:
   - type: web
-    name: medicalchain-dev
+    name: medicalchain-prod
     runtime: python
     plan: free
-    branch: develop
+    branch: main
+
     buildCommand: |
       pip install --upgrade pip
-      pip install -r medicalchain/requirements/dev.txt
-      cd medicalchain/frontend && npm install && npm run build
-      cd ../..
-      python medicalchain/manage.py collectstatic --noinput
-      python medicalchain/manage.py migrate --noinput
+      pip install -r requirements/prod.txt
+      cd frontend && npm install && npm run build
+      cd ..
+      python manage.py collectstatic --noinput
+      python manage.py migrate --noinput
+
     startCommand: gunicorn medicalchain.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+
     envVars:
-      - key: DJANGO_ENV
-        value: development
       - key: DJANGO_SETTINGS_MODULE
-        value: medicalchain.settings.dev
+        value: medicalchain.settings.prod
       - key: SECRET_KEY
-        generateValue: true
+        value: DEPLOYER_PRIVATE_KEY
+      - key: DEBUG
+        value: "0"
       - key: ALLOWED_HOSTS
         value: "medicalchain-dev.onrender.com"
-      - key: NODE_VERSION
-        value: 20
-      - key: PYTHON_VERSION
-        value: "3.11.6"
-      - key: DISABLE_COLLECTSTATIC
-        value: 0
       - key: DATABASE_URL
         fromDatabase:
-          name: medicalchain_db_dev
+          name: medicalchain_db
           property: connectionString
-    autoDeploy: yes
+      - key: REDIS_URL
+        value: "redis://redis:6379/0"
+      - key: BLOCKCHAIN_NETWORK
+        value: sepolia
+      - key: INFURA_API_KEY
+        value: "7dafda1f674d4ec49afb53fc6bfe8448"
+      - key: ETHERSCAN_API_KEY
+        value: "N1C827X4GWPEFQ4WT7PM11NV12J5PZ94JR"
+      - key: DEPLOYER_PRIVATE_KEY
+        value: DEPLOYER_PRIVATE_KEY
+      - key: CONTRACT_ADDRESS
+        value: "0x377220624586d920f560f83222A032CA26e367F0"
+      - key: REACT_APP_API_URL
+        value: "https://medicalchain-dev.onrender.com/api"
+      - key: NODE_VERSION
+        value: "20"
+      - key: PYTHON_VERSION
+        value: "3.11.6"
+
+    autoDeploy: true
     healthCheckPath: /health-check/
