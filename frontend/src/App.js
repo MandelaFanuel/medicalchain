@@ -1,23 +1,24 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import CssBaseline from '@mui/material/CssBaseline';
 
-import { ThemeProvider } from '@/context/ThemeContext.js';
-import { AuthProvider } from './context/AuthContext.jsx';
+// Chemins relatifs ajustés
+import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
 
-import Home from './pages/home/Home.jsx';
-import LoginPage from './pages/auth/LoginPage.jsx';
-import RegisterPage from './pages/auth/RegisterPage.jsx';
-import Consultation from './pages/consultation/Consultation.jsx';
+import Home from './pages/home/Home';
+import LoginPage from './pages/auth/LoginPage';
+import RegisterPage from './pages/auth/RegisterPage';
+import Consultation from './pages/consultation/Consultation';
 
-import ProtectedRoute from './components/ProtectedRoute.jsx';
-import ProtectedAuthRoute from './components/ProtectedAuthRoute.jsx';
+import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedAuthRoute from './components/ProtectedAuthRoute';
 
 function App() {
   return (
     <ThemeProvider>
       <CssBaseline />
-      <Router> {/* Router DOIT englober AuthProvider */}
+      <Router>
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Home />} />
@@ -45,6 +46,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AuthProvider>
       </Router>

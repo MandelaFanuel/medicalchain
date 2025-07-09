@@ -1,16 +1,9 @@
 {
   "compilerOptions": {
-    "baseUrl": "src",
-    "paths": {
-      "@/*": ["*"],
-      "@components/*": ["components/*"],
-      "@assets/*": ["assets/*"],
-      "@utils/*": ["utils/*"]
-    },
+    "baseUrl": ".",
     "module": "ESNext",
     "target": "ES6",
     "jsx": "react-jsx",
-    "jsxImportSource": "@emotion/react",
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
@@ -18,13 +11,35 @@
     "strict": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "allowJs": true
+    "allowJs": true,
+    "types": [
+      "node",
+      "jest"
+    ],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "noEmit": true,
+    "isolatedModules": true,
+    "paths": {
+      "@mui/material": ["./node_modules/@mui/material/esm/index.js"],
+      "@mui/icons-material": ["./node_modules/@mui/icons-material/esm/index.js"]
+    }
   },
   "exclude": [
     "node_modules",
     "dist",
     "**/__tests__",
-    "**/*.test.js"
+    "**/*.test.js",
+    "**/*.test.ts",
+    "**/*.spec.js",
+    "**/*.spec.ts",
+    "**/__mocks__"
   ],
-  "include": ["src"]
+  "include": [
+    "src/**/*.js",
+    "src/**/*.jsx"
+  ]
 }

@@ -4,7 +4,7 @@
       "@babel/preset-env",
       {
         "targets": {
-          "browsers": ["> 0.25%", "not dead", "not IE 11"],
+          "browsers": [">0.25%", "not dead", "not IE 11"],
           "node": "current"
         },
         "useBuiltIns": "usage",
@@ -13,16 +13,13 @@
           "proposals": true
         },
         "modules": false,
-        "bugfixes": true,
-        "shippedProposals": true
+        "bugfixes": true
       }
     ],
     [
       "@babel/preset-react",
       {
         "runtime": "automatic",
-        "importSource": "@emotion/react",
-        "throwIfNamespace": true,
         "development": false
       }
     ]
@@ -34,8 +31,7 @@
         "corejs": 3,
         "helpers": true,
         "regenerator": true,
-        "useESModules": true,
-        "absoluteRuntime": false
+        "useESModules": true
       }
     ],
     [
@@ -47,14 +43,27 @@
           "@components": "./src/components",
           "@assets": "./src/assets",
           "@utils": "./src/utils"
-        },
-        "extensions": [".js", ".jsx", ".mjs", ".ts", ".tsx"]
+        }
       }
     ],
-    "@emotion/babel-plugin",
-    ["@babel/plugin-transform-class-properties", { "loose": true }],
-    ["@babel/plugin-transform-private-methods", { "loose": true }],
-    ["@babel/plugin-transform-private-property-in-object", { "loose": true }]
+    [
+      "@babel/plugin-transform-class-properties",
+      {
+        "loose": true
+      }
+    ],
+    [
+      "@babel/plugin-transform-private-methods",
+      {
+        "loose": true
+      }
+    ],
+    [
+      "@babel/plugin-transform-private-property-in-object",
+      {
+        "loose": true
+      }
+    ]
   ],
   "env": {
     "development": {
@@ -63,31 +72,20 @@
           "@babel/preset-react",
           {
             "runtime": "automatic",
-            "importSource": "@emotion/react",
-            "throwIfNamespace": true,
             "development": true
           }
         ]
       ],
       "plugins": [
-        "react-refresh/babel",
-        [
-          "@emotion/babel-plugin",
-          {
-            "autoLabel": "dev-only",
-            "labelFormat": "[dirname]-[filename]-[local]"
-          }
-        ]
+        "react-refresh/babel"
       ]
     },
     "production": {
       "plugins": [
-        ["babel-plugin-transform-remove-console", { "exclude": ["error", "warn"] }],
         [
-          "@emotion/babel-plugin",
+          "transform-remove-console",
           {
-            "autoLabel": "never",
-            "cssPropOptimization": true
+            "exclude": ["error", "warn"]
           }
         ]
       ]
@@ -99,13 +97,9 @@
           {
             "targets": {
               "node": "current"
-            },
-            "modules": "commonjs"
+            }
           }
         ]
-      ],
-      "plugins": [
-        "@babel/plugin-transform-modules-commonjs"
       ]
     }
   }

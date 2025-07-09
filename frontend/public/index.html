@@ -1,14 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MedicalChain</title>
-    <meta name="description" content="Application médicale basée sur la blockchain" />
-    <meta name="theme-color" content="#1976d2" />
-  </head>
-  <body>
-    <noscript>Vous devez activer JavaScript pour exécuter cette application.</noscript>
-    <div id="root"></div>
-  </body>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="theme-color" content="#1976d2" />
+  
+  <!-- Primary Meta Tags -->
+  <title>MedicalChain - Medical Platform</title>
+  <meta name="description" content="Solution sécurisée de gestion des dossiers médicaux via blockchain" />
+  <meta name="keywords" content="medical,blockchain,santé,données médicales,securité" />
+
+  <!-- Favicon & PWA Config -->
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" href="./favicon-196.png" sizes="196x196" />
+  <link rel="apple-touch-icon" href="./apple-icon-180.png" />
+
+  <!-- Preload Resources -->
+  <link rel="preload" href="./static/js/main.js" as="script" />
+  <link rel="preload" href="./static/css/main.css" as="style" />
+
+  <!-- Security Headers -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta http-equiv="X-Frame-Options" content="DENY" />
+</head>
+<body>
+  <noscript>
+    <div style="text-align: center; padding: 2rem; font-family: Arial, sans-serif;">
+      <h1 style="color: #1976d2;">JavaScript Requis</h1>
+      <p>MedicalChain nécessite JavaScript pour fonctionner correctement.</p>
+      <p>Veuillez activer JavaScript dans les paramètres de votre navigateur.</p>
+    </div>
+  </noscript>
+
+  <div id="root"></div>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+          .then(reg => console.log('SW registered:', reg))
+          .catch(err => console.log('SW registration failed:', err));
+      });
+    }
+  </script>
+</body>
 </html>
