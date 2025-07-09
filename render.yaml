@@ -1,10 +1,9 @@
-
 services:
   - type: web
-    name: medicalchain-dev
+    name: medicalchain-prod
     runtime: python
     plan: free
-    branch: develop
+    branch: main
 
     buildCommand: |
       pip install --upgrade pip
@@ -14,13 +13,13 @@ services:
       python manage.py collectstatic --noinput
       python manage.py migrate --noinput
 
-    startCommand: gunicorn medicalchain.wsgi:application --bind 0.0.0.0:\$PORT --workers 2 --timeout 120
+    startCommand: gunicorn medicalchain.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120
 
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: medicalchain.settings.prod
       - key: SECRET_KEY
-        generateValue: true
+        value: DEPLOYER_PRIVATE_KEY
       - key: DEBUG
         value: "0"
       - key: ALLOWED_HOSTS
