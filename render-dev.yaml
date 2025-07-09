@@ -4,26 +4,23 @@ services:
     runtime: python
     plan: free
     branch: develop
-    
     buildCommand: |
       pip install --upgrade pip
-      pip install -r medicalchain/requirements/prod.txt
+      pip install -r medicalchain/requirements/dev.txt
       cd medicalchain/frontend && npm install && npm run build
       cd ../..
       python medicalchain/manage.py collectstatic --noinput
       python medicalchain/manage.py migrate --noinput
-
     startCommand: gunicorn medicalchain.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120
-
     envVars:
       - key: DJANGO_ENV
-        value: production
+        value: development
       - key: DJANGO_SETTINGS_MODULE
-        value: medicalchain.settings.prod
+        value: medicalchain.settings.dev
       - key: SECRET_KEY
-        generateValue: true  # Render génère automatiquement une clé sécurisée
+        generateValue: true
       - key: ALLOWED_HOSTS
-        value: "medicalchain-prod.onrender.com"  # À adapter avec votre URL réelle
+        value: "medicalchain-dev.onrender.com"
       - key: NODE_VERSION
         value: 20
       - key: PYTHON_VERSION
@@ -32,8 +29,7 @@ services:
         value: 0
       - key: DATABASE_URL
         fromDatabase:
-          name: medicalchain_db  # Créez cette base de données séparément
+          name: medicalchain_db_dev
           property: connectionString
-
     autoDeploy: yes
     healthCheckPath: /health-check/
