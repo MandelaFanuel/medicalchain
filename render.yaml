@@ -48,7 +48,7 @@ services:
       - key: NODE_VERSION
         value: "20"
       - key: PYTHON_VERSION
-        value: "3.12.11"
+        value: "3.11.4"
 
     autoDeploy: true
     healthCheckPath: /health-check/
