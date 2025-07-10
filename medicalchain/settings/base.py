@@ -4,7 +4,9 @@ from dotenv import load_dotenv
 from datetime import timedelta
 from celery.schedules import crontab
 import json
+import logging
 from django.core.exceptions import ImproperlyConfigured
+
 
 # Charger les variables d'environnement depuis le fichier .env
 load_dotenv()
@@ -204,41 +206,89 @@ CONTRACT_ADDRESS = get_env_variable("CONTRACT_ADDRESS", "")
 DEPLOYER_PRIVATE_KEY = get_env_variable("DEPLOYER_PRIVATE_KEY", "")
 
 
-# Chemins possibles pour l'ABI (avec fallback)
-ABI_PATHS = [
-    BASE_DIR / "backend" / "smart-contracts" / "artifacts" / "contracts" / "MedicalChainPayments.sol" / "MedicalChainPayments.json",
-    BASE_DIR / "backend" / "smart-contracts" / "contracts" / "MedicalChainPayments.json",
-    BASE_DIR / "smart-contracts" / "artifacts" / "MedicalChainPayments.json"
-]
+logger = logging.getLogger(__name__)
 
-CONTRACT_ABI = None
+def load_contract_abi():
+    """Charge l'ABI en supportant tous les formats connus de compilation"""
+    primary_path = Path("/app/backend/smart-contracts/artifacts/contracts/MedicalChainPayments.sol/MedicalChainPayments.json")
+    
+    if not primary_path.exists():
+        raise ImproperlyConfigured(
+            f"Fichier ABI introuvable à l'emplacement: {primary_path}\n"
+            "Vérifiez que:\n"
+            "1. Le contrat a bien été compilé\n"
+            "2. Le fichier est copié dans le Dockerfile\n"
+            "3. Le chemin est correct dans les paramètres"
+        )
 
-for abi_path in ABI_PATHS:
     try:
-        if abi_path.exists():
-            with open(abi_path) as f:
-                contract_data = json.load(f)
+        with open(primary_path, 'r') as f:
+            contract_data = json.load(f)
+            
+            # Format Hardhat standard
+            if isinstance(contract_data, dict):
+                if 'abi' in contract_data:
+                    logger.info("ABI trouvée (format Hardhat standard)")
+                    return contract_data['abi']
                 
-                # Supporte plusieurs formats d'ABI
-                if isinstance(contract_data, list):
-                    CONTRACT_ABI = contract_data[0].get("abi")
-                else:
-                    CONTRACT_ABI = contract_data.get("abi")
-                
-                if CONTRACT_ABI:
-                    logger.info(f"ABI chargée avec succès depuis {abi_path}")
-                    break
-                    
-    except Exception as e:
-        logger.warning(f"Erreur lors du chargement de l'ABI depuis {abi_path}: {str(e)}")
-        continue
+                # Format Hardhat avec 'output.abi'
+                if 'output' in contract_data and isinstance(contract_data['output'], dict) and 'abi' in contract_data['output']:
+                    logger.info("ABI trouvée (format Hardhat output.abi)")
+                    return contract_data['output']['abi']
+            
+            # Format Truffle/ancien
+            if isinstance(contract_data, list) and len(contract_data) > 0:
+                if isinstance(contract_data[0], dict) and 'abi' in contract_data[0]:
+                    logger.info("ABI trouvée (format Truffle)")
+                    return contract_data[0]['abi']
+            
+            # Recherche approfondie dans l'arborescence
+            def find_abi(data):
+                if isinstance(data, dict):
+                    if 'abi' in data:
+                        return data['abi']
+                    for value in data.values():
+                        result = find_abi(value)
+                        if result is not None:
+                            return result
+                elif isinstance(data, list):
+                    for item in data:
+                        result = find_abi(item)
+                        if result is not None:
+                            return result
+                return None
+            
+            abi = find_abi(contract_data)
+            if abi:
+                logger.info("ABI trouvée (recherche approfondie)")
+                return abi
 
-if not CONTRACT_ABI:
+    except json.JSONDecodeError as e:
+        logger.error(f"Erreur de décodage JSON: {str(e)}")
+    except Exception as e:
+        logger.error(f"Erreur inattendue: {str(e)}")
+
+    # Fallback hardcodé (optionnel - à décommenter si nécessaire)
+    # logger.warning("Utilisation de l'ABI hardcodée comme fallback")
+    # return [...]
+    
     raise ImproperlyConfigured(
-        f"Aucune ABI valide trouvée. Chemins testés: {', '.join(str(p) for p in ABI_PATHS)}"
+        "Impossible d'extraire l'ABI du fichier. Structure du fichier:\n" +
+        f"Clés principales: {list(contract_data.keys()) if isinstance(contract_data, dict) else 'Format liste'}\n" +
+        "Formats supportés:\n" +
+        "- Hardhat: {..., 'abi': [...]}\n" +
+        "- Hardhat alt: {..., 'output': {'abi': [...]}}\n" +
+        "- Truffle: [{'abi': [...]}, ...]"
     )
 
-# Configuration finale blockchain
+# Initialisation de la configuration blockchain
+try:
+    CONTRACT_ABI = load_contract_abi()
+    logger.info(f"ABI chargée avec succès ({len(CONTRACT_ABI)} éléments)")
+except Exception as e:
+    logger.critical(f"Échec critique du chargement ABI: {str(e)}")
+    raise
+
 BLOCKCHAIN_CONFIG = {
     "CONTRACT_ADDRESS": CONTRACT_ADDRESS,
     "PROVIDER_URL": f"https://{BLOCKCHAIN_NETWORK}.infura.io/v3/{INFURA_API_KEY}",
