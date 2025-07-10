@@ -2,10 +2,13 @@ version: '3.8'
 
 services:
   web:
-    build: .
+    build:
+      context: .
+      args:
+        ENVIRONMENT: dev  # Remplace par 'prod' selon ton besoin
     environment:
       - REDIS_URL=redis://redis:6379/0
-      - DJANGO_SETTINGS_MODULE=medicalchain.settings.dev  # Changé à dev pour le développement
+      - DJANGO_SETTINGS_MODULE=medicalchain.settings.dev  # Assure-toi que ça correspond à ENVIRONMENT
       - DEBUG=1
       - DJANGO_ENV=dev
     volumes:
@@ -17,9 +20,9 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/health/ || exit 1"]
       interval: 30s
-      timeout: 120s  # Timeout augmenté
+      timeout: 120s
       retries: 5
-      start_period: 150s  # Période de démarrage allongée
+      start_period: 150s
     networks:
       - backend
     restart: unless-stopped
@@ -37,7 +40,7 @@ services:
       interval: 30s
       timeout: 30s
       retries: 5
-      start_period: 180s  # Doit être > au start_period de web
+      start_period: 180s
     depends_on:
       web:
         condition: service_healthy

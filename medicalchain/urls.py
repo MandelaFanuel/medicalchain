@@ -60,8 +60,6 @@ urlpatterns = [
     ),  # Vérification token
     # Healthcheck
     path("health/", health_check, name="health-check"),
-    # Silk
-    path("silk/", include("silk.urls", namespace="silk")),
 ]
 
 # Ajout des URLs pour les fichiers statiques et médias
