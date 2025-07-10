@@ -1,32 +1,22 @@
 services:
   - type: web
     name: medicalchain-dev
-    runtime: python
+    runtime: docker  # ✅ très important ici
     plan: free
     branch: develop
-
-    buildCommand: |
-      pip install --upgrade pip
-      pip install -r requirements/prod.txt
-      cd frontend && npm install && npm run build
-      cd ..
-      python manage.py collectstatic --noinput
-      python manage.py migrate --noinput
-
-    startCommand: gunicorn medicalchain.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120
 
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: medicalchain.settings.prod
       - key: SECRET_KEY
-        generateValue: true  # Render génère automatiquement la clé
+        generateValue: true
       - key: DEBUG
-        value: "1"  # En staging, activer le debug est possible (ou "0" si tu préfères la prod-like)
+        value: "1"
       - key: ALLOWED_HOSTS
         value: "medicalchain-dev.onrender.com"
       - key: DATABASE_URL
         fromDatabase:
-          name: medicalchain_db_dev  # Si tu as une DB de staging séparée, sinon utilise la même
+          name: medicalchain_db_dev
           property: connectionString
       - key: REDIS_URL
         value: "redis://redis:6379/0"
@@ -37,15 +27,13 @@ services:
       - key: ETHERSCAN_API_KEY
         value: "N1C827X4GWPEFQ4WT7PM11NV12J5PZ94JR"
       - key: DEPLOYER_PRIVATE_KEY
-        value: "${{DEPLOYER_PRIVATE_KEY}}"  # Mets la valeur dans Render, pas ici
+        value: "${{DEPLOYER_PRIVATE_KEY}}"
       - key: CONTRACT_ADDRESS
         value: "0x377220624586d920f560f83222A032CA26e367F0"
       - key: REACT_APP_API_URL
         value: "https://medicalchain-dev.onrender.com/api"
       - key: NODE_VERSION
         value: "20"
-      - key: PYTHON_VERSION
-        value: "3.11.4"
 
     autoDeploy: true
     healthCheckPath: /health-check/
