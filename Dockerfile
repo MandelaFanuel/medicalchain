@@ -1,5 +1,5 @@
 # Stage 1 - Builder
-FROM python:3.11-slim-bookworm AS builder
+FROM python:3.11.4-slim-bookworm AS builder
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -46,7 +46,7 @@ RUN { [ -f "medicalchain/settings/__init__.py" ] || \
     { echo "ERROR: base.py settings file is required!"; exit 1; }
 
 # Stage 2 - Runtime
-FROM python:3.11-slim-bookworm as runtime
+FROM python:3.11.4-slim-bookworm as runtime
 
 WORKDIR /app
 
