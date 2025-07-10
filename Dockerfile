@@ -44,7 +44,8 @@ RUN echo "=== Vérification ABI ===" && \
     jq '{abi_length: (.abi | length), bytecode_length: (.bytecode | length)}' \
     /app/backend/smart-contracts/artifacts/contracts/MedicalChainPayments.sol/MedicalChainPayments.json && \
     echo "=== Validation JSON ===" && \
-    jq empty /app/backend/smart-contracts/artifacts/contracts/MedicalChainPayments.sol/MedicalChainPayments.json
+    jq empty /app/backend/smart-contracts/artifacts/contracts/MedicalChainPayments.sol/MedicalChainPayments.json || \
+    (echo "Erreur dans le fichier ABI!" && exit 1)
 
 # Copier le code source
 COPY --chown=1000:1000 . /app
