@@ -1,19 +1,12 @@
-[project]
+[tool.poetry]
 name = "medicalchain"
 version = "0.1.0"
-description = ""
-authors = [
-    {name = "MandelaFanuel", email = "mandela.fanuel.1@gmail.com"}
-]
+description = "Projet Medicalchain pour la gestion blockchain médicale"
+authors = ["MandelaFanuel <mandela.fanuel.1@gmail.com>"]
 readme = "README.md"
-requires-python = ">=3.11,<3.13"  # Compatible 3.11 et 3.12
-
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
-python = ">=3.11,<3.13"  # À synchroniser avec requires-python
+python = ">=3.11,<3.13"
 django = "5.0.6"
 djangorestframework = "3.15.2"
 gunicorn = "21.2.0"
@@ -27,3 +20,7 @@ autopep8 = "2.2.0"
 pytest = "8.1.1"
 ipython = "8.22.2"
 django-debug-toolbar = "4.2.0"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
