@@ -35,6 +35,7 @@ RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
 
 # === COPIE ET VÉRIFICATION DE L'ABI ===
 # Copier le répertoire MedicalChainPayments.sol complet et ses fichiers
+# Modifié: Le chemin de copie a été ajusté pour s'assurer que le répertoire entier est copié
 COPY --chown=1000:1000 ./backend/smart-contracts/artifacts/contracts/MedicalChainPayments.sol /app/backend/smart-contracts/artifacts/contracts/MedicalChainPayments.sol
 
 # Vérification approfondie du fichier ABI
