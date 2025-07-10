@@ -27,6 +27,7 @@ django-redis = "^6.0.0"
 channels-redis = "^4.2.1"
 Pillow = "^10.3.0"
 whitenoise = "^6.6.0" 
+dj-database-url = "^3.0.1"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "7.0.0"
