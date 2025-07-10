@@ -34,7 +34,8 @@ RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
     poetry install --no-interaction --no-ansi $(test "$ENVIRONMENT" = "prod" && echo "--without dev")
 
 # === COPIE ET VÉRIFICATION DE L'ABI ===
-COPY --chown=1000:1000 ./backend/smart-contracts/artifacts/contracts /app/backend/smart-contracts/artifacts/contracts
+# Copier le répertoire MedicalChainPayments.sol complet et ses fichiers
+COPY --chown=1000:1000 ./backend/smart-contracts/artifacts/contracts/MedicalChainPayments.sol /app/backend/smart-contracts/artifacts/contracts/MedicalChainPayments.sol
 
 # Vérification approfondie du fichier ABI
 RUN echo "=== Vérification ABI ===" && \
