@@ -36,11 +36,11 @@ RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
 # === COPIE ET VÉRIFICATION DE L'ABI ===
 # Copier le répertoire MedicalChainPayments.sol complet et ses fichiers
 # Modifié: Le chemin de copie a été ajusté pour s'assurer que le répertoire entier est copié
-COPY --chown=1000:1000 ./backend/smart-contracts/artifacts/contracts/MedicalChainPayments.sol /app/backend/smart-contracts/artifacts/contracts/MedicalChainPayments.sol
+COPY --chown=1000:1000 ./backend/smart-contracts/artifacts/contracts /app/backend/smart-contracts/artifacts/contracts
 
 # Vérification approfondie du fichier ABI
 RUN echo "=== Vérification ABI ===" && \
-    ls -la /app/backend/smart-contracts/artifacts/contracts/MedicalChainPayments.sol/ && \
+    ls -la /app/backend/smart-contracts/artifacts/contracts/ && \
     [ -f "/app/backend/smart-contracts/artifacts/contracts/MedicalChainPayments.sol/MedicalChainPayments.json" ] && \
     echo "=== Contenu ABI (extrait) ===" && \
     jq '{abi_length: (.abi | length), bytecode_length: (.bytecode | length)}' \
