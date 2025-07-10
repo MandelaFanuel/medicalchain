@@ -196,55 +196,55 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 FILE_UPLOAD_PERMISSIONS = 0o644
 FILE_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024  # 2MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
-
-# Blockchain Configuration - récupération robuste ABI
-
+# Blockchain Configuration - Version optimisée
 BLOCKCHAIN_NETWORK = get_env_variable("BLOCKCHAIN_NETWORK", "sepolia")
 INFURA_API_KEY = get_env_variable("INFURA_API_KEY", "")
 ETHERSCAN_API_KEY = get_env_variable("ETHERSCAN_API_KEY", "")
 CONTRACT_ADDRESS = get_env_variable("CONTRACT_ADDRESS", "")
 DEPLOYER_PRIVATE_KEY = get_env_variable("DEPLOYER_PRIVATE_KEY", "")
 
-try:
-    ABI_PATH = (
-        BASE_DIR
-        / "backend"
-        / "smart-contracts"
-        / "artifacts"
-        / "contracts"
-        / "MedicalChainPayments.sol"
-        / "MedicalChainPayments.json"
+
+# Chemins possibles pour l'ABI (avec fallback)
+ABI_PATHS = [
+    BASE_DIR / "backend" / "smart-contracts" / "artifacts" / "contracts" / "MedicalChainPayments.sol" / "MedicalChainPayments.json",
+    BASE_DIR / "backend" / "smart-contracts" / "contracts" / "MedicalChainPayments.json",
+    BASE_DIR / "smart-contracts" / "artifacts" / "MedicalChainPayments.json"
+]
+
+CONTRACT_ABI = None
+
+for abi_path in ABI_PATHS:
+    try:
+        if abi_path.exists():
+            with open(abi_path) as f:
+                contract_data = json.load(f)
+                
+                # Supporte plusieurs formats d'ABI
+                if isinstance(contract_data, list):
+                    CONTRACT_ABI = contract_data[0].get("abi")
+                else:
+                    CONTRACT_ABI = contract_data.get("abi")
+                
+                if CONTRACT_ABI:
+                    logger.info(f"ABI chargée avec succès depuis {abi_path}")
+                    break
+                    
+    except Exception as e:
+        logger.warning(f"Erreur lors du chargement de l'ABI depuis {abi_path}: {str(e)}")
+        continue
+
+if not CONTRACT_ABI:
+    raise ImproperlyConfigured(
+        f"Aucune ABI valide trouvée. Chemins testés: {', '.join(str(p) for p in ABI_PATHS)}"
     )
-    if not ABI_PATH.exists():
-        ABI_PATH = (
-            BASE_DIR / "backend" / "smart-contracts" / "contracts" / "MedicalChain.json"
-        )
 
-    with open(ABI_PATH) as f:
-        contract_data = json.load(f)
-        if isinstance(contract_data, list):
-            CONTRACT_ABI = contract_data[0]["abi"]
-        elif "abi" in contract_data:
-            CONTRACT_ABI = contract_data["abi"]
-        elif (
-            "compilerOutput" in contract_data
-            and "abi" in contract_data["compilerOutput"]
-        ):
-            CONTRACT_ABI = contract_data["compilerOutput"]["abi"]
-        else:
-            raise ImproperlyConfigured("ABI format not recognized in contract file")
-
-except FileNotFoundError:
-    raise ImproperlyConfigured(f"Contract ABI file not found at {ABI_PATH}")
-except json.JSONDecodeError:
-    raise ImproperlyConfigured(f"Contract ABI file is not valid JSON at {ABI_PATH}")
-except KeyError as e:
-    raise ImproperlyConfigured(f"Missing required key in contract ABI: {str(e)}")
-
+# Configuration finale blockchain
 BLOCKCHAIN_CONFIG = {
     "CONTRACT_ADDRESS": CONTRACT_ADDRESS,
     "PROVIDER_URL": f"https://{BLOCKCHAIN_NETWORK}.infura.io/v3/{INFURA_API_KEY}",
-    "CHAIN_ID": 11155111,  # Sepolia chain id
+    "CHAIN_ID": 11155111 if BLOCKCHAIN_NETWORK == "sepolia" else 1,
     "GAS_LIMIT": 3000000,
     "CONTRACT_ABI": CONTRACT_ABI,
+    "ETHERSCAN_API_KEY": ETHERSCAN_API_KEY,
+    "DEPLOYER_PRIVATE_KEY": DEPLOYER_PRIVATE_KEY,
 }
